@@ -12,6 +12,34 @@ import {
 import { uploadImage } from "@/app/actions/media";
 import { cn } from "@/lib/utils";
 
+/** Toolbar button, declared at module scope (not during render). */
+function ToolbarButton({
+  onClick,
+  active,
+  children,
+  label,
+}: {
+  onClick: () => void;
+  active?: boolean;
+  children: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      className={cn(
+        "grid h-9 w-9 place-items-center rounded-lg transition-colors",
+        active ? "bg-brand-800 text-cream" : "text-brand-700 hover:bg-brand-50",
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function RichEditor({
   name,
   initialHTML = "",
@@ -40,30 +68,7 @@ export function RichEditor({
 
   if (!editor) return null;
 
-  const Btn = ({
-    onClick,
-    active,
-    children,
-    label,
-  }: {
-    onClick: () => void;
-    active?: boolean;
-    children: React.ReactNode;
-    label: string;
-  }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={label}
-      title={label}
-      className={cn(
-        "grid h-9 w-9 place-items-center rounded-lg transition-colors",
-        active ? "bg-brand-800 text-cream" : "text-brand-700 hover:bg-brand-50",
-      )}
-    >
-      {children}
-    </button>
-  );
+  const Btn = ToolbarButton;
 
   async function onPickImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];

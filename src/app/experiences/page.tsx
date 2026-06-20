@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { PageHero } from "@/components/ui/page-hero";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/reveal";
-import { SectionHeading } from "@/components/ui/section-heading";
 import { experiences } from "@/lib/content";
 import { Sunrise, Footprints, Mountain, Sparkles } from "lucide-react";
 
