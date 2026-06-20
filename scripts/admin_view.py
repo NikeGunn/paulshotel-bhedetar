@@ -1,5 +1,12 @@
+import os
+import sys
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+
+EMAIL = os.environ.get("SMOKE_ADMIN_EMAIL")
+PASSWORD = os.environ.get("SMOKE_ADMIN_PASSWORD")
+if not EMAIL or not PASSWORD:
+    sys.exit("Set SMOKE_ADMIN_EMAIL and SMOKE_ADMIN_PASSWORD env vars to run this test.")
 
 OUT = Path(__file__).parent.parent / ".shots"
 with sync_playwright() as p:
@@ -7,8 +14,8 @@ with sync_playwright() as p:
     ctx = b.new_context(viewport={"width": 1280, "height": 900})
     page = ctx.new_page()
     page.goto("http://localhost:3000/admin/login", wait_until="networkidle", timeout=60000)
-    page.fill('input[name="email"]', "paulshotelbhedetar@gmail.com")
-    page.fill('input[name="password"]', "PaulsHotel@9c010633")
+    page.fill('input[name="email"]', EMAIL)
+    page.fill('input[name="password"]', PASSWORD)
     page.click('button[type="submit"]')
     page.wait_for_url("**/admin", timeout=30000)
     page.wait_for_timeout(1200)

@@ -1,8 +1,9 @@
 name: Deploy
 
 # Smart CD: deploys to Vercel only after the CI quality gate passes.
-# - Pull requests  -> Preview deployment (a unique URL per PR, commented).
-# - Push to main   -> Production deployment.
+# Production-only and same-repo-only: this never runs for fork PRs, so the
+# Vercel token is never exposed to untrusted code. PR preview deployments are
+# handled by Vercel's own GitHub integration (no token in workflow), not here.
 
 on:
   workflow_run:
@@ -10,7 +11,7 @@ on:
     types: [completed]
 
 concurrency:
-  group: deploy-${{ github.event.workflow_run.head_branch }}
+  group: deploy-production
   cancel-in-progress: true
 
 env:
@@ -19,9 +20,14 @@ env:
 
 jobs:
   deploy:
-    name: vercel
-    # Only run if the CI run succeeded.
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    name: vercel-production
+    # Only: CI succeeded AND it was a push (not a PR) AND from this repo (not a fork)
+    # AND on main. This keeps secrets away from untrusted PR code.
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,31 +41,22 @@ jobs:
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
 
-      - name: Resolve environment
-        id: env
-        run: |
-          if [ "${{ github.event.workflow_run.head_branch }}" = "main" ] && [ "${{ github.event.workflow_run.event }}" = "push" ]; then
-            echo "target=production" >> "$GITHUB_OUTPUT"
-            echo "flag=--prod" >> "$GITHUB_OUTPUT"
-          else
-            echo "target=preview" >> "$GITHUB_OUTPUT"
-            echo "flag=" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Pull Vercel env
-        run: vercel pull --yes --environment=${{ steps.env.outputs.target }} --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Build
-        run: vercel build ${{ steps.env.outputs.flag }} --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy
         id: deploy
         run: |
-          URL=$(vercel deploy --prebuilt ${{ steps.env.outputs.flag }} --token=${{ secrets.VERCEL_TOKEN }})
+          URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "Deployed to $URL"
 
       - name: Summary
+        env:
+          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
         run: |
-          echo "### Deployed (${{ steps.env.outputs.target }})" >> "$GITHUB_STEP_SUMMARY"
-          echo "${{ steps.deploy.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Production deploy" >> "$GITHUB_STEP_SUMMARY"
+          echo "$DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
