@@ -1,0 +1,187 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Paul's Hotel & Lodge — design tokens
+   Palette: deep hotel-blue (brand building) + warm string-light amber accent
+   + soft cream/neutrals. Soothing hill-resort vibe.
+--------------------------------------------------------------------------- */
+
+:root {
+  --background: #fbfaf7;          /* warm cream */
+  --foreground: #14202e;          /* near brand-blue ink */
+
+  --brand-50:  #eef4fb;
+  --brand-100: #d6e6f5;
+  --brand-200: #aecdeb;
+  --brand-300: #79aadd;
+  --brand-400: #4683c8;
+  --brand-500: #2a64ad;           /* primary hotel-blue */
+  --brand-600: #1f4d8c;
+  --brand-700: #1b3f72;
+  --brand-800: #14304f;           /* deep building blue */
+  --brand-900: #0f2238;
+  --brand-950: #091625;
+
+  --amber-300: #fcd34d;
+  --amber-400: #fbbf24;
+  --amber-500: #f59e0b;           /* string-light amber accent */
+  --amber-600: #d97706;
+
+  --cream: #fbfaf7;
+  --sand:  #f1ece1;
+  --ink:   #14202e;
+  --muted: #5b6b7c;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-brand-50:  var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+  --color-brand-950: var(--brand-950);
+
+  --color-amber-300: var(--amber-300);
+  --color-amber-400: var(--amber-400);
+  --color-amber-500: var(--amber-500);
+  --color-amber-600: var(--amber-600);
+
+  --color-cream: var(--cream);
+  --color-sand:  var(--sand);
+  --color-ink:   var(--ink);
+  --color-muted: var(--muted);
+
+  --font-sans:    var(--font-sans);
+  --font-display: var(--font-display);
+}
+
+* {
+  border-color: color-mix(in oklab, var(--brand-800) 12%, transparent);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display), Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+/* utility: gradient text */
+.text-gradient-brand {
+  background: linear-gradient(90deg, var(--brand-500), var(--brand-800));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Ken-Burns slow zoom for hero slides */
+@keyframes kenburns {
+  0%   { transform: scale(1) translateY(0); }
+  100% { transform: scale(1.12) translateY(-1.5%); }
+}
+.animate-kenburns {
+  animation: kenburns 12s ease-out forwards;
+}
+
+/* string-light shimmer for accents */
+@keyframes shimmer {
+  0%, 100% { opacity: 0.65; }
+  50%      { opacity: 1; }
+}
+.animate-shimmer { animation: shimmer 3s ease-in-out infinite; }
+
+/* honor reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-kenburns { animation: none; }
+}
+
+/* ---- GPU marquees (compositor-driven, smooth) ---- */
+@keyframes marquee-left {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+@keyframes marquee-right {
+  from { transform: translate3d(-50%, 0, 0); }
+  to   { transform: translate3d(0, 0, 0); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: var(--marquee-anim) var(--marquee-dur, 40s) linear infinite;
+}
+.marquee-pause:hover .marquee-track {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+}
+
+/* ---- GSAP card-fan carousel layout ---- */
+.fan-layout {
+  height: 22rem;
+}
+.fan-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 13rem;
+  height: 19rem;
+  margin-left: -6.5rem;
+  margin-top: -9.5rem;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background: var(--brand-900);
+  box-shadow: 0 20px 50px -12px rgba(9, 22, 37, 0.5);
+  will-change: transform, opacity;
+  transform-origin: center bottom;
+  border: 4px solid #fff;
+}
+@media (min-width: 480px) {
+  .fan-layout { height: 26rem; }
+  .fan-card { width: 15rem; height: 22rem; margin-left: -7.5rem; margin-top: -11rem; }
+}
+@media (min-width: 640px) {
+  .fan-layout { height: 28rem; }
+  .fan-card { width: 16rem; height: 24rem; margin-left: -8rem; margin-top: -12rem; }
+}
+@media (min-width: 768px) {
+  .fan-layout { height: 34rem; }
+  .fan-card { width: 18rem; height: 27rem; margin-left: -9rem; margin-top: -13.5rem; }
+}
+@media (min-width: 1024px) {
+  .fan-layout { height: 38rem; }
+  .fan-card { width: 20rem; height: 30rem; margin-left: -10rem; margin-top: -15rem; }
+}
+
+/* tiptap / prose minimal */
+.prose-hotel :where(h2) { font-size: 1.6rem; margin: 1.4em 0 .5em; }
+.prose-hotel :where(h3) { font-size: 1.25rem; margin: 1.2em 0 .4em; }
+.prose-hotel :where(p)  { margin: 0 0 1em; line-height: 1.75; }
+.prose-hotel :where(img){ border-radius: 0.75rem; margin: 1.2em 0; }
+.prose-hotel :where(a)  { color: var(--brand-600); text-decoration: underline; }
+.prose-hotel :where(ul) { list-style: disc; padding-left: 1.4em; margin: 0 0 1em; }
