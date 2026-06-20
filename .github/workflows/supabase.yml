@@ -1,0 +1,35 @@
+name: Supabase
+
+# Applies database schema changes to the Supabase project whenever
+# supabase/schema.sql changes on main. schema.sql is idempotent
+# (IF NOT EXISTS / DROP ... IF EXISTS), so re-running is safe.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/**"
+  workflow_dispatch: # allow manual runs from the Actions tab
+
+concurrency:
+  group: supabase-schema
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    name: apply schema
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply schema.sql
+        env:
+          # Full Postgres connection string, stored as a repo secret.
+          DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "SUPABASE_DB_URL secret is not set; skipping." && exit 1
+          fi
+          sudo apt-get update -y && sudo apt-get install -y postgresql-client
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/schema.sql
+          echo "Schema applied."

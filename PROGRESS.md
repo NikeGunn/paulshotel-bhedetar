@@ -2,9 +2,11 @@
 
 > Live build tracker. Update after each work block. See `CLAUDE.md` for the full brain.
 
-**Status:** Phase 1 COMPLETE. Starting Phase 2 (Supabase + admin).
+**Status:** LIVE. All 3 phases complete and deployed.
+**Live URL:** https://paulshotel-bhedetar.vercel.app
+**Repo:** github.com/NikeGunn/paulshotel-bhedetar (private)
 **Last updated:** 2026-06-20
-**Next action:** Supabase schema.sql + clients, admin auth, blog CRUD + editor, wire blog/gallery to DB, inquiry server action + email.
+**Smart CI/CD:** push to main -> CI (lint/types/build) -> Vercel prod deploy; PRs get preview deploys; supabase/** changes auto-apply schema. Secrets set in GitHub.
 
 ---
 
