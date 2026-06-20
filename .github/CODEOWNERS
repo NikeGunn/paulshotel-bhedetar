@@ -1,0 +1,3 @@
+# Default owner for everything in this repo.
+# All pull requests require the owner's review before merging into main.
+*       @NikeGunn

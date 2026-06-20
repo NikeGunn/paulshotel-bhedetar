@@ -1,9 +1,13 @@
+import os
+import sys
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 OUT = Path(__file__).parent.parent / ".shots"
-EMAIL = "paulshotelbhedetar@gmail.com"
-PASSWORD = "PaulsHotel@9c010633"
+EMAIL = os.environ.get("SMOKE_ADMIN_EMAIL")
+PASSWORD = os.environ.get("SMOKE_ADMIN_PASSWORD")
+if not EMAIL or not PASSWORD:
+    sys.exit("Set SMOKE_ADMIN_EMAIL and SMOKE_ADMIN_PASSWORD env vars to run this test.")
 
 with sync_playwright() as p:
     b = p.chromium.launch(headless=True)
