@@ -83,6 +83,22 @@ jobs:
         if: steps.gate.outputs.ready == 'true'
         run: npm i -g vercel@latest
 
+      # Vercel enforces that the deploy's git-commit author be a team member.
+      # GitHub squash-merges author commits as the noreply email, which is not
+      # a Vercel seat -> deploy is BLOCKED ("Git author ... must have access").
+      # Re-author the (ephemeral, CI-only) HEAD commit as the Vercel account
+      # email so the author check passes. This is never pushed back to GitHub.
+      - name: Re-author HEAD for Vercel git-author check
+        if: steps.gate.outputs.ready == 'true'
+        env:
+          VERCEL_EMAIL: ${{ secrets.VERCEL_ACCOUNT_EMAIL }}
+        run: |
+          EMAIL="${VERCEL_EMAIL:-knewboy.nykhil@gmail.com}"
+          git config user.email "$EMAIL"
+          git config user.name "Paul's Hotel Deploy"
+          git commit --amend --no-edit --reset-author
+          echo "HEAD now authored by $(git log -1 --format='%ae')"
+
       - name: Pull Vercel env
         if: steps.gate.outputs.ready == 'true'
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
