@@ -1,16 +1,52 @@
 "use client";
 
-import { motion, type Variants } from "motion/react";
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 type Direction = "up" | "left" | "right" | "scale";
 
-const offset: Record<Direction, { x?: number; y?: number; scale?: number }> = {
-  up: { y: 48 },
-  left: { x: -64 },
-  right: { x: 64 },
-  scale: { scale: 0.92 },
+/**
+ * Scroll reveal — CSS/compositor driven, NOT a JS animation engine.
+ *
+ * Previously every Reveal/Stagger mounted a Framer Motion `whileInView`, which
+ * meant ~30 IntersectionObservers PLUS Motion's animation loop running during
+ * scroll. Profiling (LoAF, 4x CPU throttle) showed this `event-listener`
+ * scripting dominating scroll frames (~1.5s of blocking). Here we instead use
+ * one IntersectionObserver per element that does a single job — add an
+ * `is-in` class once — and let a CSS transition (transform+opacity, both
+ * compositor properties) do the animation. No per-frame JS, observers
+ * disconnect after firing. Same look, a fraction of the main-thread cost.
+ */
+
+const fromClass: Record<Direction, string> = {
+  up: "translate-y-12",
+  left: "-translate-x-16",
+  right: "translate-x-16",
+  scale: "scale-95",
 };
+
+function useInView<T extends HTMLElement>(once = true) {
+  const ref = useRef<T>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          if (once) io.disconnect();
+        } else if (!once) {
+          setInView(false);
+        }
+      },
+      { rootMargin: "-80px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [once]);
+  return [ref, inView] as const;
+}
 
 export function Reveal({
   children,
@@ -25,35 +61,26 @@ export function Reveal({
   className?: string;
   once?: boolean;
 }) {
-  const from = offset[direction];
+  const [ref, inView] = useInView<HTMLDivElement>(once);
   return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, ...from }}
-      whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
-      viewport={{ once, margin: "-80px" }}
-      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+    <div
+      ref={ref}
+      style={delay ? { transitionDelay: `${delay}s` } : undefined}
+      className={cn(
+        "transition-[transform,opacity] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[transform,opacity] motion-reduce:transition-none",
+        inView ? "translate-x-0 translate-y-0 scale-100 opacity-100" : cn("opacity-0", fromClass[direction]),
+        className,
+      )}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
-/** Stagger container: children animate in sequence. */
-const containerVariants: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 28 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
-  },
-};
-
+/**
+ * Stagger container: children fade/slide up in sequence. Uses a single IO on
+ * the container and CSS transition-delay per child (no JS animation engine).
+ */
 export function Stagger({
   children,
   className,
@@ -61,16 +88,15 @@ export function Stagger({
   children: ReactNode;
   className?: string;
 }) {
+  const [ref, inView] = useInView<HTMLDivElement>(true);
   return (
-    <motion.div
-      className={className}
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, margin: "-60px" }}
+    <div
+      ref={ref}
+      data-in={inView ? "true" : "false"}
+      className={cn("stagger-root", className)}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -81,9 +107,5 @@ export function StaggerItem({
   children: ReactNode;
   className?: string;
 }) {
-  return (
-    <motion.div className={className} variants={itemVariants}>
-      {children}
-    </motion.div>
-  );
+  return <div className={cn("stagger-item", className)}>{children}</div>;
 }

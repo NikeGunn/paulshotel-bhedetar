@@ -21,7 +21,7 @@ const BASE_CONFIG: Omit<COBEOptions, "width" | "height" | "onRender"> = {
   theta: 0.3,
   dark: 1,
   diffuse: 3,
-  mapSamples: 8000, // was 11000-12000; visually identical at this size
+  mapSamples: 6000, // was 11000-12000; lower = cheaper init, identical at this size
   mapBrightness: 9,
   mapBaseBrightness: 0.05,
   baseColor: [0.38, 0.56, 0.8],

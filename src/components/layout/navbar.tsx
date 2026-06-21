@@ -6,19 +6,13 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { Menu, X, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useScrollFlag } from "@/lib/use-scroll-flag";
 import { navItems, links, siteConfig } from "@/lib/site-config";
 
 export function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
+  const scrolled = useScrollFlag(24);
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => setOpen(false), [pathname]);
 
@@ -28,7 +22,10 @@ export function Navbar() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-500",
+        // Transition only colors — never backdrop-filter/shadow/layout — so
+        // toggling the scrolled state can't trigger an expensive animated
+        // repaint of the blurred bar on every frame near the threshold.
+        "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
         scrolled
           ? "bg-cream/85 backdrop-blur-xl shadow-[0_8px_30px_-12px_rgba(15,34,56,0.25)] border-b border-brand-800/10"
           : "bg-gradient-to-b from-brand-950/50 to-transparent",

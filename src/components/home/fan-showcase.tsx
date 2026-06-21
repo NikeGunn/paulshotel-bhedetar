@@ -1,4 +1,4 @@
-import SocialCards from "@/components/ui/card-fan-carousel";
+import { CardFanLazy } from "@/components/ui/card-fan-lazy";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { galleryImages } from "@/lib/content";
 
@@ -33,7 +33,7 @@ export function FanShowcase() {
         />
       </div>
       <div className="mt-6">
-        <SocialCards cards={cards} />
+        <CardFanLazy cards={cards} />
       </div>
     </section>
   );
