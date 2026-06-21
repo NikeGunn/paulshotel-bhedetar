@@ -1,15 +1,71 @@
 version: 2
 updates:
+  # ---------------------------------------------------------------------------
+  # npm dependencies
+  # ---------------------------------------------------------------------------
   - package-ecosystem: npm
     directory: "/"
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
+      day: monday
+      time: "06:00"
+      timezone: Asia/Kathmandu
+    open-pull-requests-limit: 10
     labels:
       - "type: chore"
+    commit-message:
+      prefix: "build(deps)"
+      prefix-development: "build(deps-dev)"
+
+    # Smart grouping: keep packages that share peer constraints in ONE PR so
+    # the lockfile resolves cleanly. A solo react-dom bump fails CI because its
+    # peer is react@exact — grouping react + react-dom fixes that class of break.
+    groups:
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      tiptap:
+        patterns:
+          - "@tiptap/*"
+      supabase:
+        patterns:
+          - "@supabase/*"
+      # Minor/patch dev tooling batched together to cut PR noise.
+      dev-minor:
+        dependency-type: development
+        update-types:
+          - "minor"
+          - "patch"
+
+    ignore:
+      # eslint v10 breaks eslint-config-next + eslint-plugin-react today
+      # ("contextOrFilename.getFilename is not a function"). Hold until the
+      # Next/React plugin ecosystem ships eslint@10-compatible releases.
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      # cobe v2 removed `onRender` from COBEOptions (breaking API change our
+      # globe components rely on). Revisit only with a deliberate code migration.
+      - dependency-name: "cobe"
+        update-types: ["version-update:semver-major"]
+
+  # ---------------------------------------------------------------------------
+  # GitHub Actions
+  # ---------------------------------------------------------------------------
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Asia/Kathmandu
     labels:
       - "type: chore"
+    commit-message:
+      prefix: "ci"
+    groups:
+      actions:
+        patterns:
+          - "*"

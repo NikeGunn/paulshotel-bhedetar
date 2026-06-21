@@ -11,22 +11,34 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Least-privilege: CI only needs to read the repo.
+permissions:
+  contents: read
+
 jobs:
-  # 1) Quality gate: lint, types, build. Runs on every push and PR.
+  # Quality gate: lint, types, build. Runs on every push and PR.
   build:
     name: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
-      - run: npm ci
+
+      # Reproducible, lockfile-faithful install. No silent peer overrides:
+      # a peer conflict here is a real signal we want CI to fail on.
+      - name: Install
+        run: npm ci
+
       - name: Lint
         run: npm run lint
+
       - name: Type check
         run: npx tsc --noEmit
+
       - name: Build
         run: npm run build
         env:
