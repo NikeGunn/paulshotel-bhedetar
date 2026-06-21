@@ -12,6 +12,8 @@ export function LoaderGlobe({ size = 160 }: { size?: number }) {
     ref,
     size: () => size,
     markers: [{ location: BHEDETAR, size: 0.2 }],
+    // Preloader is fullscreen and short-lived; never freeze it on scroll.
+    pauseOnScroll: false,
     onFrame: (state) => {
       phi.current += 0.012; // brisk spin while loading
       state.phi = phi.current;

@@ -42,21 +42,60 @@ export type UseGlobeOpts = {
   /** Pixel size used for width/height (cobe multiplies by DPR internally here). */
   size: () => number;
   markers: COBEOptions["markers"];
-  /** Called each frame; mutate `state` and return next phi. */
+  /** Called each frame; mutate `state`. Skipped while the globe is frozen. */
   onFrame: (state: Record<string, number>, dpr: number, size: number) => void;
+  /** Freeze (render a 0px buffer) when off-screen and during scroll. Default true. */
+  pauseOnScroll?: boolean;
 };
 
 /**
  * Creates a cobe globe bound to the given canvas ref and tears it down on
  * unmount. Single source of truth for globe lifecycle + perf tuning.
+ *
+ * Key perf trick: cobe (via phenomenon) does a per-frame `readPixels`, which
+ * forces a GPU→CPU sync stall every frame the globe renders. During page
+ * scroll that stall fights the compositor and causes visible jank (worst on
+ * scroll-direction changes). So while the user is scrolling — or the globe is
+ * off-screen — we feed cobe a 0×0 render buffer. cobe then does effectively no
+ * GPU work and `readPixels` reads nothing, eliminating the stall. The canvas
+ * keeps its CSS box (no layout shift) and the last frame stays painted, so the
+ * globe simply looks "frozen" mid-scroll and resumes spinning once scrolling
+ * settles. Net: smooth scrolling in both directions.
  */
-export function useGlobe({ ref, size, markers, onFrame }: UseGlobeOpts) {
+export function useGlobe({
+  ref,
+  size,
+  markers,
+  onFrame,
+  pauseOnScroll = true,
+}: UseGlobeOpts) {
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
 
     const dpr = cappedDpr();
     let px = size();
+
+    let onScreen = true;
+    let scrolling = false;
+    let scrollTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const frozen = () => pauseOnScroll && (!onScreen || scrolling);
+
+    const io = new IntersectionObserver(
+      ([entry]) => (onScreen = entry.isIntersecting),
+      { rootMargin: "120px" },
+    );
+    io.observe(canvas);
+
+    const onScroll = () => {
+      scrolling = true;
+      if (scrollTimer) clearTimeout(scrollTimer);
+      // Resume ~140ms after the last scroll event (scroll has settled).
+      scrollTimer = setTimeout(() => (scrolling = false), 140);
+    };
+    if (pauseOnScroll)
+      window.addEventListener("scroll", onScroll, { passive: true });
 
     const globe = createGlobe(canvas, {
       ...BASE_CONFIG,
@@ -65,6 +104,12 @@ export function useGlobe({ ref, size, markers, onFrame }: UseGlobeOpts) {
       height: px * dpr,
       markers,
       onRender: (state: Record<string, number>) => {
+        if (frozen()) {
+          // 0×0 buffer => cobe does ~no GPU work, no readPixels stall.
+          state.width = 0;
+          state.height = 0;
+          return;
+        }
         px = size();
         onFrame(state, dpr, px);
         state.width = px * dpr;
@@ -75,6 +120,9 @@ export function useGlobe({ ref, size, markers, onFrame }: UseGlobeOpts) {
     const t = setTimeout(() => (canvas.style.opacity = "1"), 60);
     return () => {
       clearTimeout(t);
+      if (scrollTimer) clearTimeout(scrollTimer);
+      io.disconnect();
+      window.removeEventListener("scroll", onScroll);
       globe.destroy();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

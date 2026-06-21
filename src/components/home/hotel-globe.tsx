@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useSpring } from "motion/react";
 import { BHEDETAR, useGlobe } from "@/lib/use-globe";
 
@@ -19,11 +19,12 @@ export function HotelGlobe() {
   const pointerInteracting = useRef<number | null>(null);
   const pointerMovement = useRef(0);
   const r = useSpring(0, { stiffness: 280, damping: 40, mass: 1 });
-  const onScreen = useRef(true);
 
   // Start centered on South Asia (Nepal ~87E) so Bhedetar faces the viewer.
   const phi = useRef(4.1);
 
+  // useGlobe freezes the render (0px buffer) while off-screen or scrolling,
+  // so we only need to handle drag-vs-autospin here.
   useGlobe({
     ref: canvasRef,
     size: () => canvasRef.current?.offsetWidth ?? 0,
@@ -32,24 +33,10 @@ export function HotelGlobe() {
       ...SOURCES.map((s) => ({ location: s.loc, size: s.size })),
     ],
     onFrame: (state) => {
-      // Advance rotation only when visible and not being dragged (saves GPU).
-      if (onScreen.current && pointerInteracting.current === null)
-        phi.current += 0.0035;
+      if (pointerInteracting.current === null) phi.current += 0.0035;
       state.phi = phi.current + r.get();
     },
   });
-
-  // Pause the globe's rotation when it scrolls out of view.
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const io = new IntersectionObserver(
-      ([entry]) => (onScreen.current = entry.isIntersecting),
-      { rootMargin: "120px" },
-    );
-    io.observe(canvas);
-    return () => io.disconnect();
-  }, [canvasRef]);
 
   return (
     <div className="relative h-full w-full">
