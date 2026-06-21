@@ -1,11 +1,42 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Lock, Loader2 } from "lucide-react";
-import { signIn } from "@/app/actions/auth";
+import { createClient } from "@/lib/supabase/client";
 
 export default function AdminLoginPage() {
-  const [state, formAction, pending] = useActionState(signIn, {});
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    setPending(true);
+
+    const form = new FormData(e.currentTarget);
+    const email = String(form.get("email") ?? "");
+    const password = String(form.get("password") ?? "");
+
+    // Sign in with the browser client so the auth cookie is written client-side
+    // (via @supabase/ssr), then navigate. middleware reads the same cookie and
+    // lets us into /admin. This avoids the server-action cookie+redirect race.
+    const supabase = createClient();
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (signInError) {
+      setError("Incorrect email or password.");
+      setPending(false);
+      return;
+    }
+
+    router.refresh();
+    router.replace("/admin");
+  }
 
   return (
     <div className="grid min-h-screen place-items-center bg-brand-950 px-4">
@@ -20,10 +51,7 @@ export default function AdminLoginPage() {
           <p className="mt-1 text-sm text-cream/60">Sign in to manage your site</p>
         </div>
 
-        <form
-          action={formAction}
-          className="rounded-3xl bg-cream p-7 shadow-2xl"
-        >
+        <form onSubmit={onSubmit} className="rounded-3xl bg-cream p-7 shadow-2xl">
           <label className="text-sm font-medium text-brand-800">Email</label>
           <input
             name="email"
@@ -46,9 +74,9 @@ export default function AdminLoginPage() {
             placeholder="••••••••"
           />
 
-          {state?.error && (
+          {error && (
             <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-              {state.error}
+              {error}
             </p>
           )}
 

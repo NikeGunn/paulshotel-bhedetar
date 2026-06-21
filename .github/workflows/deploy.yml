@@ -39,6 +39,7 @@ jobs:
     name: vercel-production
     runs-on: ubuntu-latest
     environment: production
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
 
@@ -94,9 +95,19 @@ jobs:
         id: deploy
         if: steps.gate.outputs.ready == 'true'
         run: |
-          URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          # --archive=tgz uploads a single tarball (faster, avoids large
+          # multi-file upload stalls). Captures the production URL it prints.
+          URL=$(vercel deploy --prebuilt --prod --archive=tgz --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "Deployed to $URL"
+
+      - name: Alias to canonical domain
+        if: steps.gate.outputs.ready == 'true' && steps.deploy.outputs.url != ''
+        # Ensure the canonical alias always points at THIS deploy, so
+        # paulshotel-bhedetar.vercel.app is never stale vs the latest push.
+        run: |
+          vercel alias set "${{ steps.deploy.outputs.url }}" paulshotel-bhedetar.vercel.app \
+            --token=${{ secrets.VERCEL_TOKEN }} || echo "alias step non-fatal"
 
       - name: Summary
         if: steps.gate.outputs.ready == 'true'
