@@ -1,7 +1,7 @@
 import { MapPin, Phone, Clock, Navigation } from "lucide-react";
 import { Reveal } from "@/components/ui/reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { HotelGlobe } from "./hotel-globe";
+import { HotelGlobeLazy } from "./hotel-globe-lazy";
 import { links, siteConfig } from "@/lib/site-config";
 
 export function LocationCTA() {
@@ -16,7 +16,7 @@ export function LocationCTA() {
         <div className="grid items-center gap-12 lg:grid-cols-2">
           {/* Globe */}
           <Reveal direction="left">
-            <HotelGlobe />
+            <HotelGlobeLazy />
           </Reveal>
 
           {/* Details */}

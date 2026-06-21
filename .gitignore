@@ -51,3 +51,4 @@ ADMIN_CREDENTIALS*.md
 next-env.d.ts
 
 .vercel
+build.log
