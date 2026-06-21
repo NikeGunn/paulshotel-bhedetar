@@ -1,45 +1,24 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import createGlobe from "cobe";
-import { siteConfig } from "@/lib/site-config";
-
-const BHEDETAR: [number, number] = [siteConfig.geo.lat, siteConfig.geo.lng];
+import { useRef } from "react";
+import { BHEDETAR, useGlobe } from "@/lib/use-globe";
 
 /** Small fast-spinning earth used inside the preloader. */
 export function LoaderGlobe({ size = 160 }: { size?: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const phi = useRef(4.1);
 
-  useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas) return;
-    let phi = 4.1;
-    const globe = createGlobe(canvas, {
-      devicePixelRatio: 2,
-      width: size * 2,
-      height: size * 2,
-      phi: 0,
-      theta: 0.3,
-      dark: 1,
-      diffuse: 3,
-      mapSamples: 11000,
-      mapBrightness: 9,
-      mapBaseBrightness: 0.05,
-      baseColor: [0.38, 0.56, 0.8],
-      markerColor: [1, 0.72, 0.1],
-      glowColor: [0.45, 0.65, 0.95],
-      markers: [{ location: BHEDETAR, size: 0.2 }],
-      onRender: (state: Record<string, number>) => {
-        phi += 0.012; // brisk spin while loading
-        state.phi = phi;
-      },
-    });
-    const t = setTimeout(() => (canvas.style.opacity = "1"), 60);
-    return () => {
-      clearTimeout(t);
-      globe.destroy();
-    };
-  }, [size]);
+  useGlobe({
+    ref,
+    size: () => size,
+    markers: [{ location: BHEDETAR, size: 0.2 }],
+    // Preloader is fullscreen and short-lived; never freeze it on scroll.
+    pauseOnScroll: false,
+    onFrame: (state) => {
+      phi.current += 0.012; // brisk spin while loading
+      state.phi = phi.current;
+    },
+  });
 
   return (
     <canvas

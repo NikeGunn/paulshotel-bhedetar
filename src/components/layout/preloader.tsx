@@ -46,10 +46,22 @@ export function Preloader() {
       650,
     );
 
+    // Failsafe: the preloader must NEVER trap the site. If the count animation
+    // stalls for any reason (JS error elsewhere, throttled tab, a chunk that
+    // failed to load), force-dismiss after a hard ceiling so the page is always
+    // reachable.
+    const failsafe = setTimeout(() => {
+      sessionStorage.setItem("psh-loaded", "1");
+      document.body.style.overflow = "";
+      setDone(true);
+      setShow(false);
+    }, 6000);
+
     return () => {
       controls.stop();
       unsub();
       clearInterval(wordTimer);
+      clearTimeout(failsafe);
       document.body.style.overflow = "";
     };
   }, [isAdmin, count, rounded]);

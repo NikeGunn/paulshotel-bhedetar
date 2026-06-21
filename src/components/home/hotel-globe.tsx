@@ -1,11 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import createGlobe from "cobe";
+import { useRef } from "react";
 import { useSpring } from "motion/react";
-import { siteConfig } from "@/lib/site-config";
-
-const BHEDETAR: [number, number] = [siteConfig.geo.lat, siteConfig.geo.lng];
+import { BHEDETAR, useGlobe } from "@/lib/use-globe";
 
 // Cities guests travel from, converging on Bhedetar. [lat, lng]
 const SOURCES: { loc: [number, number]; size: number }[] = [
@@ -23,78 +20,35 @@ export function HotelGlobe() {
   const pointerMovement = useRef(0);
   const r = useSpring(0, { stiffness: 280, damping: 40, mass: 1 });
 
-  const onScreen = useRef(true);
+  // Start centered on South Asia (Nepal ~87E) so Bhedetar faces the viewer.
+  const phi = useRef(4.1);
 
-  // Pause the globe render loop when it scrolls out of view (saves GPU).
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const io = new IntersectionObserver(
-      ([entry]) => (onScreen.current = entry.isIntersecting),
-      { rootMargin: "120px" },
-    );
-    io.observe(canvas);
-    return () => io.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    let width = 0;
-    // Start centered on South Asia (Nepal ~87E) so Bhedetar faces the viewer.
-    let phi = 4.1;
-    const onResize = () => {
-      width = canvas.offsetWidth;
-    };
-    window.addEventListener("resize", onResize);
-    onResize();
-
-    const globe = createGlobe(canvas, {
-      devicePixelRatio: 2,
-      width: width * 2,
-      height: width * 2,
-      phi: 0,
-      theta: 0.3,
-      dark: 1,
-      diffuse: 3,
-      mapSamples: 12000,
-      mapBrightness: 9,
-      mapBaseBrightness: 0.05,
-      baseColor: [0.38, 0.56, 0.8],
-      markerColor: [1, 0.72, 0.1],
-      glowColor: [0.45, 0.65, 0.95],
-      markers: [
-        { location: BHEDETAR, size: 0.18 },
-        ...SOURCES.map((s) => ({ location: s.loc, size: s.size })),
-      ],
-      onRender: (state: Record<string, number>) => {
-        // Skip advancing rotation while off-screen (still must set size).
-        if (onScreen.current && pointerInteracting.current === null) phi += 0.0035;
-        state.phi = phi + r.get();
-        state.width = width * 2;
-        state.height = width * 2;
-      },
-    });
-
-    const t = setTimeout(() => (canvas.style.opacity = "1"), 60);
-    return () => {
-      clearTimeout(t);
-      globe.destroy();
-      window.removeEventListener("resize", onResize);
-    };
-  }, [r]);
+  // useGlobe freezes the render (0px buffer) while off-screen or scrolling,
+  // so we only need to handle drag-vs-autospin here.
+  useGlobe({
+    ref: canvasRef,
+    size: () => canvasRef.current?.offsetWidth ?? 0,
+    markers: [
+      { location: BHEDETAR, size: 0.18 },
+      ...SOURCES.map((s) => ({ location: s.loc, size: s.size })),
+    ],
+    onFrame: (state) => {
+      if (pointerInteracting.current === null) phi.current += 0.0035;
+      state.phi = phi.current + r.get();
+    },
+  });
 
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-[480px]">
+    <div className="relative h-full w-full">
       {/* halo */}
       <div className="pointer-events-none absolute inset-0 rounded-full bg-amber-400/10 blur-3xl" />
       <div className="pointer-events-none absolute inset-6 rounded-full bg-brand-500/10 blur-2xl" />
 
-      {/* animated incoming arcs (great-circle feel) over the globe */}
+      {/* animated incoming arcs (great-circle feel) over the globe.
+          motion-reduce hides the SMIL animation for reduced-motion users. */}
       <svg
         viewBox="0 0 480 480"
-        className="pointer-events-none absolute inset-0 z-10 h-full w-full"
+        className="pointer-events-none absolute inset-0 z-10 h-full w-full motion-reduce:hidden"
         aria-hidden
       >
         <defs>
