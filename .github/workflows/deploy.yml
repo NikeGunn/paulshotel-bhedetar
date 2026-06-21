@@ -1,20 +1,32 @@
 name: Deploy
 
-# Smart CD: deploys to Vercel only after the CI quality gate passes.
-# Production-only and same-repo-only: this never runs for fork PRs, so the
-# Vercel token is never exposed to untrusted code. PR preview deployments are
-# handled by Vercel's own GitHub integration (no token in workflow), not here.
+# Production CD to Vercel on every push to main.
+#
+# Triggered DIRECTLY by push-to-main (not via workflow_run) so it can never be
+# orphaned or cancelled by unrelated CI runs. The job re-runs the quality gate
+# (lint + types + build) first, then deploys.
+#
+# DORMANT until secrets exist: with no VERCEL_TOKEN the deploy step is skipped
+# cleanly and the run still goes green ("coming soon"). Add VERCEL_TOKEN,
+# VERCEL_ORG_ID, VERCEL_PROJECT_ID as repo secrets and the next push goes live.
+#
+# Note: PR preview deployments are handled by Vercel's own Git integration
+# (no token in CI), so no token is ever exposed to untrusted fork PR code.
 
 on:
-  workflow_run:
-    workflows: ["CI"]
-    types: [completed]
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - "LICENSE"
+      - ".github/ISSUE_TEMPLATE/**"
+  workflow_dispatch:
 
+# Never interrupt an in-flight production deploy.
 concurrency:
   group: deploy-production
-  cancel-in-progress: true
+  cancel-in-progress: false
 
-# Least-privilege: deploy reads the repo; Vercel auth is via token, not GITHUB_TOKEN.
 permissions:
   contents: read
 
@@ -25,40 +37,69 @@ env:
 jobs:
   deploy:
     name: vercel-production
-    # Only: CI succeeded AND it was a push (not a PR) AND from this repo (not a fork)
-    # AND on main. This keeps secrets away from untrusted PR code.
-    if: >
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push' &&
-      github.event.workflow_run.head_branch == 'main' &&
-      github.event.workflow_run.head_repository.full_name == github.repository
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - uses: actions/checkout@v5
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
 
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Quality gate — production must never ship a red build.
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_SITE_URL: https://paulshotel-bhedetar.vercel.app
+
+      # Secret gate: only deploy when a Vercel token is configured.
+      - name: Check for Vercel secrets
+        id: gate
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -n "$VERCEL_TOKEN" ] && [ -n "$VERCEL_ORG_ID" ] && [ -n "$VERCEL_PROJECT_ID" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Deploy skipped::No VERCEL_TOKEN/ORG_ID/PROJECT_ID yet. Build is green; add the secrets to go live."
+          fi
 
       - name: Install Vercel CLI
+        if: steps.gate.outputs.ready == 'true'
         run: npm i -g vercel@latest
 
       - name: Pull Vercel env
+        if: steps.gate.outputs.ready == 'true'
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Build
+      - name: Vercel build
+        if: steps.gate.outputs.ready == 'true'
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy
         id: deploy
+        if: steps.gate.outputs.ready == 'true'
         run: |
           URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "Deployed to $URL"
 
       - name: Summary
+        if: steps.gate.outputs.ready == 'true'
         env:
           DEPLOY_URL: ${{ steps.deploy.outputs.url }}
         run: |
