@@ -14,6 +14,10 @@ concurrency:
   group: deploy-production
   cancel-in-progress: true
 
+# Least-privilege: deploy reads the repo; Vercel auth is via token, not GITHUB_TOKEN.
+permissions:
+  contents: read
+
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -30,13 +34,13 @@ jobs:
       github.event.workflow_run.head_repository.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
