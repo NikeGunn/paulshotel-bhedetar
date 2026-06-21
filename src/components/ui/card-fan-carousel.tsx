@@ -219,8 +219,12 @@ export default function SocialCards({ cards }: SocialCardsProps) {
 
     let activeSlot: number | null = null;
     let leaveTimer: ReturnType<typeof setTimeout> | null = null;
-    const centerSlot = visibleEntries.length >> 1;
 
+    // Hover layout: only animate the hovered card (lift + scale) and its two
+    // immediate neighbours (a small push). Previously every visible card was
+    // re-tweened with an elastic ease on every mouseenter, which made hovering
+    // across the deck janky. Cheaper transforms + a snappier ease keep it
+    // smooth while preserving the fan-spreading feel.
     const updateHoverLayout = (hoveredSlot: number | null) => {
       const mult = getResponsiveMultiplier(window.innerWidth);
       const hM = getHeightMultiplier(window.innerWidth);
@@ -229,39 +233,17 @@ export default function SocialCards({ cards }: SocialCardsProps) {
         const base = config(slot);
         let targetX = base.x * mult;
         let targetY = base.y * hM;
-        let targetRot = base.rot;
+        const targetRot = base.rot;
         let targetScale = base.scale;
-        let delay = 0;
 
         if (hoveredSlot !== null) {
           const distance = Math.abs(slot - hoveredSlot);
-          delay = distance * 0.02;
-
           if (slot === hoveredSlot) {
             targetY -= 2.5 * hM;
             targetScale *= 1.08;
-          } else {
-            const normalized =
-              centerSlot > 0 ? (slot - centerSlot) / centerSlot : 0;
-            const pushStrength =
-              8 *
-              (1 - Math.abs(normalized)) *
-              (1 + 0.2 * Math.max(0, 3 - distance));
-
-            if (slot < hoveredSlot) {
-              targetX -= pushStrength * mult;
-              targetRot -= 3 / (distance + 1);
-            } else {
-              targetX += pushStrength * mult;
-              targetRot += 3 / (distance + 1);
-            }
-
-            if (slot === visibleEntries.length - 1 && hoveredSlot < centerSlot)
-              targetY -= 1 * hM;
-            if (slot === 0 && hoveredSlot > centerSlot) targetY -= 1 * hM;
+          } else if (distance === 1) {
+            targetX += (slot < hoveredSlot ? -1 : 1) * 4 * mult;
           }
-        } else {
-          delay = Math.abs(slot - centerSlot) * 0.02;
         }
 
         gsap.to(el, {
@@ -269,9 +251,8 @@ export default function SocialCards({ cards }: SocialCardsProps) {
           y: `${targetY}rem`,
           rotation: targetRot,
           scale: targetScale,
-          duration: 0.5,
-          delay,
-          ease: "elastic.out(1,.75)",
+          duration: 0.4,
+          ease: "power3.out",
           overwrite: "auto",
         });
         gsap.set(el, { zIndex: base.zIndex });

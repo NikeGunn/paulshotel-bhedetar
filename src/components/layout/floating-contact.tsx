@@ -1,19 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Phone, MessageCircle, X, Plus } from "lucide-react";
+import { useScrollFlag } from "@/lib/use-scroll-flag";
 import { links } from "@/lib/site-config";
 
 export function FloatingContact() {
   const [open, setOpen] = useState(false);
-  const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > 400);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const show = useScrollFlag(400);
 
   return (
     <AnimatePresence>
