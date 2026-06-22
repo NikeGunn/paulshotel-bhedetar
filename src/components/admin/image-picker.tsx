@@ -14,18 +14,26 @@ export function ImagePicker({
 }) {
   const [url, setUrl] = useState(initialUrl);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setBusy(true);
-    const fd = new FormData();
-    fd.append("file", file);
-    const res = await uploadImage(fd);
-    setBusy(false);
-    e.target.value = "";
-    if (res.url) setUrl(res.url);
-    else alert(res.error ?? "Upload failed");
+    setError(null);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await uploadImage(fd);
+      if (res.url) setUrl(res.url);
+      else setError(res.error ?? "Upload failed.");
+    } catch {
+      // Network error or the request exceeded the Server Action body limit.
+      setError("Upload failed — the image may be too large. Try a smaller photo.");
+    } finally {
+      setBusy(false);
+      e.target.value = "";
+    }
   }
 
   return (
@@ -55,6 +63,9 @@ export function ImagePicker({
           )}
           <input type="file" accept="image/*" className="hidden" onChange={onPick} disabled={busy} />
         </label>
+      )}
+      {error && (
+        <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
       )}
     </div>
   );
