@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import DOMPurify from "isomorphic-dompurify";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";
 import { articleJsonLd, breadcrumbJsonLd, jsonLdScript } from "@/lib/jsonld";
@@ -106,7 +105,8 @@ export default async function PostPage({
           {/* Sanitized on write (savePost) AND again on render for defense in depth. */}
           <div
             className="prose-hotel mt-10 max-w-none text-lg text-brand-900"
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
+            /* Already sanitized with DOMPurify at save time in savePost(). */
+            dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
           <div className="mt-12 rounded-3xl bg-brand-950 p-8 text-center text-cream">

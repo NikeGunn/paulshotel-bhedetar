@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import DOMPurify from "isomorphic-dompurify";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/utils";
@@ -36,6 +35,10 @@ export async function savePost(
   if (title.length < 3) return { error: "Title is too short." };
 
   // Sanitize editor HTML before it is ever stored or rendered.
+  // Loaded lazily: isomorphic-dompurify pulls jsdom, which must NOT initialise
+  // at module scope — that previously crashed the serverless function for any
+  // action on this route (delete/toggle/sign-out all 500'd from /admin/blog).
+  const { default: DOMPurify } = await import("isomorphic-dompurify");
   const content = DOMPurify.sanitize(rawContent, {
     ALLOWED_TAGS: [
       "p", "br", "strong", "em", "u", "s", "h2", "h3", "h4",

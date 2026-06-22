@@ -28,8 +28,8 @@ export function ImagePicker({
       if (res.url) setUrl(res.url);
       else setError(res.error ?? "Upload failed.");
     } catch {
-      // Network error or the request exceeded the Server Action body limit.
-      setError("Upload failed — the image may be too large. Try a smaller photo.");
+      // Network error, server crash, or the request exceeded the body limit.
+      setError("Upload failed. Please try again or use a smaller image.");
     } finally {
       setBusy(false);
       e.target.value = "";
