@@ -81,8 +81,8 @@ export function RichEditor({
       if (res.url) editor?.chain().focus().setImage({ src: res.url }).run();
       else alert(res.error ?? "Upload failed.");
     } catch {
-      // Network error or image exceeded the Server Action body limit.
-      alert("Upload failed — the image may be too large. Try a smaller photo.");
+      // Network error, server crash, or image exceeded the body limit.
+      alert("Upload failed. Please try again or use a smaller image.");
     } finally {
       setUploading(false);
       e.target.value = "";
