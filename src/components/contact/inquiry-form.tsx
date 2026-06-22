@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "motion/react";
 import { Loader2, Check, Send } from "lucide-react";
-import { inquirySchema, type InquiryInput } from "@/lib/inquiry-schema";
+import { inquirySchema, todayISO, type InquiryInput } from "@/lib/inquiry-schema";
 import { submitInquiry } from "@/app/actions/inquiry";
 
 export function InquiryForm() {
@@ -15,8 +15,12 @@ export function InquiryForm() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<InquiryInput>({ resolver: zodResolver(inquirySchema) });
+
+  const today = todayISO();
+  const checkIn = watch("checkIn");
 
   async function onSubmit(data: InquiryInput) {
     setServerError(null);
@@ -74,11 +78,18 @@ export function InquiryForm() {
         </div>
         <div>
           <label className={label}>Check in</label>
-          <input type="date" className={field} {...register("checkIn")} />
+          <input type="date" min={today} className={field} {...register("checkIn")} />
+          {errors.checkIn && <p className={err}>{errors.checkIn.message}</p>}
         </div>
         <div>
           <label className={label}>Check out</label>
-          <input type="date" className={field} {...register("checkOut")} />
+          <input
+            type="date"
+            min={checkIn || today}
+            className={field}
+            {...register("checkOut")}
+          />
+          {errors.checkOut && <p className={err}>{errors.checkOut.message}</p>}
         </div>
         <div className="sm:col-span-2">
           <label className={label}>Guests</label>
