@@ -35,7 +35,8 @@
 - **lucide-react** — icons · **clsx** + **tailwind-merge** + **cva** — styling utils
 - **@supabase/supabase-js** + **@supabase/ssr** — DB/Auth/Storage (cookie auth in App Router)
 - **react-hook-form** + **zod** + **@hookform/resolvers** — forms/validation
-- **@tiptap/react** + starter-kit + image + link — admin rich blog editor
+- **@tiptap/react** + starter-kit (link bundled in v3) + image — admin rich blog editor
+- **sanitize-html** — pure-JS server-side HTML sanitization of editor output (NOT isomorphic-dompurify: jsdom's native init crashed the serverless function on save)
 - **resend** — inquiry notification email to owner
 - Dev visual loop: **Playwright** (webapp-testing skill / Claude Code browser)
 
@@ -104,29 +105,29 @@ Global UI: sticky nav, footer (NAP/social/hours), floating WhatsApp+Call buttons
 
 ## 8. Phases (build roadmap)
 
-### Phase 1 — Foundation + animated static site  *(IN PROGRESS)*
+### Phase 1 — Foundation + animated static site  *(DONE)*
 - [x] Scaffold Next 16 + TS + Tailwind v4; install motion/embla/supabase/rhf/zod/tiptap/resend.
 - [x] Move 24 real photos → `public/images/{hotel,rooms,food,bar,views}`.
-- [ ] Theme tokens + fonts in `globals.css`; `src/lib/site-config.ts` (NAP/SEO).
-- [ ] Layout shell: Nav, Footer, FloatingContact, global metadata + JSON-LD.
-- [ ] Public pages w/ animations + carousels (static content): Home, Rooms, Dining, Gallery, Experiences, Contact (form UI).
-- [ ] Playwright visual loop: dev server + screenshot each page (desktop + mobile).
-- **Done when:** great-looking, fully animated static site runs locally; screenshots captured.
+- [x] Theme tokens + fonts in `globals.css`; `src/lib/site-config.ts` (NAP/SEO).
+- [x] Layout shell: Nav, Footer, FloatingContact, global metadata + JSON-LD.
+- [x] Public pages w/ animations + carousels: Home, Rooms, Dining, Gallery, Experiences, Contact (form UI).
+- [x] Playwright visual loop: dev server + screenshot each page (desktop + mobile).
+- **Done when:** great-looking, fully animated static site runs locally; screenshots captured. ✅
 
-### Phase 2 — Supabase backend + admin panel (dynamic)
-- [ ] `supabase/schema.sql` — tables + RLS + storage bucket; seed owner admin user (token: provisioned).
-- [ ] `src/lib/supabase/{server,client,admin}.ts`.
-- [ ] Admin auth (login + protected `/admin` layout/middleware).
-- [ ] Admin: blog CRUD + Tiptap editor + image upload; gallery manager; leads table.
-- [ ] Wire public `/blog`, `/blog/[slug]`, `/gallery` to DB (ISR). Inquiry server action → save lead + Resend email + `revalidatePath`.
-- **Done when:** owner logs in, publishes a blog w/ images, sees leads; public site reflects it.
+### Phase 2 — Supabase backend + admin panel (dynamic)  *(DONE)*
+- [x] `supabase/schema.sql` — tables + RLS + storage bucket; owner admin user provisioned.
+- [x] `src/lib/supabase/{server,client,admin}.ts`.
+- [x] Admin auth (login + protected `/admin` layout/middleware).
+- [x] Admin: blog CRUD (create/edit/delete/publish) + Tiptap editor + image upload; gallery CRUD (upload/edit alt+category/delete); leads table + status update.
+- [x] Wire public `/blog`, `/blog/[slug]`, `/gallery` to DB (ISR). Inquiry server action → save lead + Resend email + `revalidatePath`.
+- **Done when:** owner logs in, publishes a blog w/ images, sees leads; public site reflects it. ✅
 
-### Phase 3 — SEO hardening + Vercel CI/CD + live URL
-- [ ] Full metadata/JSON-LD/OG/sitemap/robots pass; Lighthouse + perf + a11y audit.
-- [ ] GitHub repo + Actions CI (lint, typecheck, build); Vercel Git integration (preview/PR, prod on main).
-- [ ] Vercel CLI: install, login, link, set env vars, `vercel --prod`.
-- [ ] Post-deploy Playwright smoke test on live URL; domain-switch checklist documented.
-- **Done when:** live Vercel URL to send CEO; CI green; domain-ready.
+### Phase 3 — SEO hardening + Vercel CI/CD + live URL  *(MOSTLY DONE)*
+- [x] Full metadata/JSON-LD/OG/sitemap/robots in place.
+- [x] GitHub repo + Actions CI (lint, typecheck, build) green; push-to-main → Vercel prod deploy via Actions.
+- [x] Vercel CLI installed, project linked, env vars set; prod deploys green and aliased to canonical domain.
+- [ ] Formal Lighthouse + perf + a11y audit; post-deploy Playwright smoke on live URL; domain-switch checklist documented.
+- **Live URL:** https://paulshotel-bhedetar.vercel.app · **Done when:** audit pass + domain-switch doc. (CI green ✅, live URL ✅)
 
 ---
 

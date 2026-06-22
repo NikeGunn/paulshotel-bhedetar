@@ -3,7 +3,6 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
 import { useState } from "react";
 import {
   Bold, Italic, Heading2, Heading3, List, ListOrdered,
@@ -53,9 +52,13 @@ export function RichEditor({
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      StarterKit,
+      // StarterKit v3 bundles the Link extension — configure it here instead of
+      // adding a second Link extension (that caused the "Duplicate extension
+      // names: ['link']" warning).
+      StarterKit.configure({
+        link: { openOnClick: false, HTMLAttributes: { rel: "noopener noreferrer" } },
+      }),
       Image.configure({ inline: false }),
-      Link.configure({ openOnClick: false, HTMLAttributes: { rel: "noopener noreferrer" } }),
     ],
     content: initialHTML,
     onUpdate: ({ editor }) => setHtml(editor.getHTML()),
