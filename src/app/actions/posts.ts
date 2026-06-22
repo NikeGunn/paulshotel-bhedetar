@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import sanitizeHtml from "sanitize-html";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/utils";
@@ -35,16 +36,20 @@ export async function savePost(
   if (title.length < 3) return { error: "Title is too short." };
 
   // Sanitize editor HTML before it is ever stored or rendered.
-  // Loaded lazily: isomorphic-dompurify pulls jsdom, which must NOT initialise
-  // at module scope — that previously crashed the serverless function for any
-  // action on this route (delete/toggle/sign-out all 500'd from /admin/blog).
-  const { default: DOMPurify } = await import("isomorphic-dompurify");
-  const content = DOMPurify.sanitize(rawContent, {
-    ALLOWED_TAGS: [
+  // Uses sanitize-html (pure JS, no jsdom) — isomorphic-dompurify pulls jsdom,
+  // whose native init crashed the serverless function on save (500 on publish).
+  const content = sanitizeHtml(rawContent, {
+    allowedTags: [
       "p", "br", "strong", "em", "u", "s", "h2", "h3", "h4",
       "ul", "ol", "li", "blockquote", "a", "img", "code", "pre", "hr",
     ],
-    ALLOWED_ATTR: ["href", "src", "alt", "title", "target", "rel"],
+    allowedAttributes: {
+      a: ["href", "title", "target", "rel"],
+      img: ["src", "alt", "title"],
+    },
+    allowedSchemes: ["http", "https", "mailto"],
+    // Keep editor image data URIs out; only real uploaded URLs are allowed.
+    allowProtocolRelative: false,
   });
 
   const slug = slugify(title);
