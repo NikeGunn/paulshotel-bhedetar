@@ -80,9 +80,26 @@ export async function savePost(
 export async function deletePost(id: string) {
   await requireAuth();
   const db = createAdminClient();
+
+  // Best-effort: remove the cover image from storage so deletes leave no orphan.
+  const { data: row } = await db
+    .from("posts")
+    .select("cover_url")
+    .eq("id", id)
+    .single();
+  const path = row?.cover_url ? storagePathFromUrl(row.cover_url) : null;
+  if (path) await db.storage.from("media").remove([path]);
+
   await db.from("posts").delete().eq("id", id);
   revalidatePath("/blog");
   revalidatePath("/admin/blog");
+}
+
+/** Extract the in-bucket object path from a public media URL (or return null). */
+function storagePathFromUrl(url: string): string | null {
+  const marker = "/storage/v1/object/public/media/";
+  const i = url.indexOf(marker);
+  return i === -1 ? null : decodeURIComponent(url.slice(i + marker.length));
 }
 
 export async function togglePublish(id: string, publish: boolean) {

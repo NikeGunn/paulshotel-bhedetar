@@ -74,13 +74,19 @@ export function RichEditor({
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
-    const fd = new FormData();
-    fd.append("file", file);
-    const res = await uploadImage(fd);
-    setUploading(false);
-    e.target.value = "";
-    if (res.url) editor?.chain().focus().setImage({ src: res.url }).run();
-    else alert(res.error ?? "Upload failed");
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await uploadImage(fd);
+      if (res.url) editor?.chain().focus().setImage({ src: res.url }).run();
+      else alert(res.error ?? "Upload failed.");
+    } catch {
+      // Network error or image exceeded the Server Action body limit.
+      alert("Upload failed — the image may be too large. Try a smaller photo.");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
   }
 
   function addLink() {

@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     optimizePackageImports: ["lucide-react", "motion"],
+    // Image uploads run through Server Actions. The default request body cap is
+    // 1MB, which silently rejects normal phone/camera photos (2–6MB) and leaves
+    // the upload spinner stuck forever. Lift it above our 8MB per-file guard.
+    serverActions: { bodySizeLimit: "12mb" },
   },
 };
 
