@@ -4,6 +4,8 @@ import "./globals.css";
 import { siteConfig } from "@/lib/site-config";
 import { hotelJsonLd, jsonLdScript } from "@/lib/jsonld";
 import { SiteChrome } from "@/components/layout/site-chrome";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const display = Fraunces({
   variable: "--font-display",
@@ -59,6 +61,8 @@ export default function RootLayout({
           dangerouslySetInnerHTML={jsonLdScript(hotelJsonLd())}
         />
         <SiteChrome>{children}</SiteChrome>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

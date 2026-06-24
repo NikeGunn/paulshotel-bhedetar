@@ -64,7 +64,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          NEXT_PUBLIC_SITE_URL: https://paulshotel-bhedetar.vercel.app
+          NEXT_PUBLIC_SITE_URL: https://hotelpauls.com
 
       # Secret gate: only deploy when a Vercel token is configured.
       - name: Check for Vercel secrets

@@ -25,6 +25,34 @@ const nextConfig: NextConfig = {
     // the upload spinner stuck forever. Lift it above our 8MB per-file guard.
     serverActions: { bodySizeLimit: "12mb" },
   },
+  // Security headers — applied to every response at the edge.
+  // No CSP here: a strict policy would block Next's inline runtime + motion;
+  // the headers below cover the high-value, zero-risk hardening.
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          // Force HTTPS for 2 years incl. subdomains (HSTS).
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+          // Block MIME-type sniffing.
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          // Don't let the site be framed (clickjacking).
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          // Send only the origin on cross-origin navigations.
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          // Lock down powerful browser features we never use.
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

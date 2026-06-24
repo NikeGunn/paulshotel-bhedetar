@@ -35,8 +35,8 @@ export const siteConfig = {
   // URLs — production base read from env so OG/canonical work on Vercel + custom domain
   url:
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-    "https://paulshotel.vercel.app",
-  futureDomain: "https://paulshotel.com.np",
+    "https://hotelpauls.com",
+  futureDomain: "https://hotelpauls.com",
 
   social: {
     facebook: "https://www.facebook.com/paulshotelbhedetar/",

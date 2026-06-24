@@ -36,9 +36,13 @@ export async function submitInquiry(input: InquiryInput): Promise<InquiryResult>
   if (process.env.RESEND_API_KEY) {
     try {
       const resend = new Resend(process.env.RESEND_API_KEY);
+      // Sender is env-driven: once hotelpauls.com is verified in Resend, set
+      // RESEND_FROM="Paul's Hotel <noreply@hotelpauls.com>" for owner-direct,
+      // spam-safe delivery. Until then falls back to Resend's shared sender.
       await resend.emails.send({
-        from: "Paul's Hotel Website <onboarding@resend.dev>",
+        from: process.env.RESEND_FROM || "Paul's Hotel Website <onboarding@resend.dev>",
         to: process.env.OWNER_EMAIL || siteConfig.email,
+        replyTo: d.email || undefined,
         subject: `New enquiry from ${d.name}`,
         text: [
           `Name: ${d.name}`,
