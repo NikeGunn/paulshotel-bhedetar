@@ -7,7 +7,7 @@ import { siteConfig } from "@/lib/site-config";
 
 /**
  * Saves a guest enquiry to Supabase (service role, no CORS) and notifies the
- * owner by email. All server-side.
+ * owner by email (Resend, verified hotelpauls.com sender). All server-side.
  */
 export async function submitInquiry(input: InquiryInput): Promise<InquiryResult> {
   const parsed = inquirySchema.safeParse(input);
