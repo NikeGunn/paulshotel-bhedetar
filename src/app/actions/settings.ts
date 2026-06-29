@@ -72,7 +72,7 @@ const settingsSchema = z.object({
   geo_lng: optNum(-180, 180),
   rating_value: optNum(0, 5),
   rating_count: optNum(0, 10_000_000),
-  price_range: optText(10),
+  price_range: optText(60),
   facebook_url: optUrl,
   instagram_url: optUrl,
   directions_url: optUrl,
@@ -111,7 +111,10 @@ export async function saveSettings(
 
   const parsed = settingsSchema.safeParse(raw);
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
+    const issue = parsed.error.issues[0];
+    const where = issue?.path?.join(".");
+    const msg = issue?.message ?? "Invalid input.";
+    return { error: where ? `${where}: ${msg}` : msg };
   }
 
   const db = createAdminClient();

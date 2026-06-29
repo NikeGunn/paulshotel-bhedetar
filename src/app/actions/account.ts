@@ -76,10 +76,12 @@ export async function changePassword(
 // ------------------------------------------------------------------- email
 const emailSchema = z.object({
   current: z.string().min(1, "Enter your current password to confirm."),
+  // Trim BEFORE validating so a stray leading/trailing space in the field
+  // doesn't trip the email check.
   email: z
     .string()
-    .email("Enter a valid email address.")
-    .transform((v) => v.trim().toLowerCase()),
+    .transform((v) => v.trim().toLowerCase())
+    .pipe(z.string().email("Enter a valid email address.")),
 });
 
 export async function changeLoginEmail(
