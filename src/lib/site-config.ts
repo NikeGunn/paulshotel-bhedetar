@@ -15,7 +15,7 @@ export const siteConfig = {
   phone: "970-1406587",
   phoneE164: "+9779701406587", // tel:/wa.me
   whatsapp: "9779701406587", // wa.me number (no +)
-  email: "paulshotelbhedetar@gmail.com",
+  email: "Sanbunpaudal299@gmail.com",
 
   address: {
     street: "Charles Point, Dharan-Dhankuta Highway",

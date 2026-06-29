@@ -3,7 +3,7 @@
 ## Reporting a vulnerability
 
 If you discover a security issue in this project, please do not open a public
-issue. Email **paulshotelbhedetar@gmail.com** with details and steps to reproduce.
+issue. Email **Sanbunpaudal299@gmail.com** with details and steps to reproduce.
 You will get an acknowledgement within a few days.
 
 ## Handling of secrets

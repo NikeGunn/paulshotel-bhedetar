@@ -14,7 +14,7 @@
 | Name | **Paul's Hotel & Lodge** (signage: "PAULS HOTEL & LODGE") |
 | Address | Charles Point (चार्ल्स प्वाइन्ट), Dharan–Dhankuta Highway, **Bhedetar 56804**, Dhankuta, Nepal |
 | Phone / WhatsApp | **970-1406587** |
-| Email | **paulshotelbhedetar@gmail.com** |
+| Email | **Sanbunpaudal299@gmail.com** |
 | Rating | **4.5 / 5** · **86 Google reviews** |
 | Price tier | `$$` |
 | Facebook | facebook.com/paulshotelbhedetar |
