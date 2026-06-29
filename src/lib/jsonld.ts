@@ -1,36 +1,42 @@
 import { siteConfig } from "./site-config";
+import type { ResolvedSettings } from "./settings";
 
-/** Hotel + LocalBusiness structured data for home/contact. */
-export function hotelJsonLd() {
+/**
+ * Hotel + LocalBusiness structured data for home/contact. Accepts resolved
+ * settings (owner-editable) and falls back to the compiled siteConfig if none
+ * is passed, so callers that don't have settings still render valid JSON-LD.
+ */
+export function hotelJsonLd(s?: ResolvedSettings) {
+  const c = s ?? siteConfig;
   return {
     "@context": "https://schema.org",
     "@type": "Hotel",
-    name: siteConfig.name,
-    description: siteConfig.description,
+    name: c.name,
+    description: c.description,
     url: siteConfig.url,
-    telephone: siteConfig.phoneE164,
-    email: siteConfig.email,
-    priceRange: siteConfig.priceRange,
+    telephone: c.phoneE164,
+    email: c.email,
+    priceRange: c.priceRange,
     image: `${siteConfig.url}/images/hotel/exterior-blue-dusk.webp`,
     address: {
       "@type": "PostalAddress",
-      streetAddress: siteConfig.address.street,
-      addressLocality: siteConfig.address.locality,
-      addressRegion: siteConfig.address.region,
-      postalCode: siteConfig.address.postalCode,
+      streetAddress: c.address.street,
+      addressLocality: c.address.locality,
+      addressRegion: c.address.region,
+      postalCode: c.address.postalCode,
       addressCountry: "NP",
     },
     geo: {
       "@type": "GeoCoordinates",
-      latitude: siteConfig.geo.lat,
-      longitude: siteConfig.geo.lng,
+      latitude: c.geo.lat,
+      longitude: c.geo.lng,
     },
     aggregateRating: {
       "@type": "AggregateRating",
-      ratingValue: siteConfig.rating.value,
-      reviewCount: siteConfig.rating.count,
+      ratingValue: c.rating.value,
+      reviewCount: c.rating.count,
     },
-    sameAs: [siteConfig.social.facebook, siteConfig.social.instagram],
+    sameAs: [c.social.facebook, c.social.instagram],
   };
 }
 

@@ -69,6 +69,10 @@
 
 html {
   scroll-behavior: smooth;
+  /* Clip any horizontal spill (full-bleed decorative blurs/parallax) so phones
+     and tablets never get a sideways scroll. `clip` (not `hidden`) keeps
+     position: sticky working. */
+  overflow-x: clip;
 }
 
 body {
@@ -77,6 +81,7 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
 
 h1, h2, h3, h4 {

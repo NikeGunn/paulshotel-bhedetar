@@ -4,7 +4,7 @@ import { PageHero } from "@/components/ui/page-hero";
 import { Reveal } from "@/components/ui/reveal";
 import { InquiryForm } from "@/components/contact/inquiry-form";
 import { jsonLdScript, breadcrumbJsonLd } from "@/lib/jsonld";
-import { links, siteConfig } from "@/lib/site-config";
+import { getSettings } from "@/lib/settings";
 
 export const metadata: Metadata = {
   title: "Contact & Book",
@@ -13,10 +13,16 @@ export const metadata: Metadata = {
   alternates: { canonical: "/contact" },
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const s = await getSettings();
   const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(
-    siteConfig.mapEmbedQuery,
+    s.mapEmbedQuery,
   )}&output=embed`;
+  const callHref = `tel:${s.phoneE164}`;
+  const whatsappHref = `https://wa.me/${s.whatsapp}?text=${encodeURIComponent(
+    "Hi Paul's Hotel, I'd like to enquire about a room.",
+  )}`;
+  const directionsHref = s.directionsUrl;
 
   return (
     <>
@@ -52,7 +58,7 @@ export default function ContactPage() {
 
               <div className="mt-8 space-y-4">
                 <a
-                  href={links.call}
+                  href={callHref}
                   className="flex items-center gap-4 rounded-2xl border border-brand-800/10 bg-white p-5 transition-colors hover:border-amber-400/50"
                 >
                   <span className="grid h-12 w-12 place-items-center rounded-xl bg-brand-50 text-brand-700">
@@ -60,11 +66,11 @@ export default function ContactPage() {
                   </span>
                   <span>
                     <span className="block text-sm text-muted">Call us</span>
-                    <span className="font-semibold text-brand-900">{siteConfig.phone}</span>
+                    <span className="font-semibold text-brand-900">{s.phone}</span>
                   </span>
                 </a>
                 <a
-                  href={links.whatsapp}
+                  href={whatsappHref}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-4 rounded-2xl border border-brand-800/10 bg-white p-5 transition-colors hover:border-amber-400/50"
@@ -78,7 +84,7 @@ export default function ContactPage() {
                   </span>
                 </a>
                 <a
-                  href={links.mailto}
+                  href={`mailto:${s.email}`}
                   className="flex items-center gap-4 rounded-2xl border border-brand-800/10 bg-white p-5 transition-colors hover:border-amber-400/50"
                 >
                   <span className="grid h-12 w-12 place-items-center rounded-xl bg-brand-50 text-brand-700">
@@ -87,7 +93,7 @@ export default function ContactPage() {
                   <span>
                     <span className="block text-sm text-muted">Email</span>
                     <span className="break-all font-semibold text-brand-900">
-                      {siteConfig.email}
+                      {s.email}
                     </span>
                   </span>
                 </a>
@@ -98,10 +104,10 @@ export default function ContactPage() {
                   <span>
                     <span className="block text-sm text-muted">Visit us</span>
                     <span className="font-semibold text-brand-900">
-                      {siteConfig.address.full}
+                      {s.address.full}
                     </span>
                     <a
-                      href={links.directions}
+                      href={directionsHref}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="mt-1 inline-flex items-center gap-1 text-sm text-brand-600 hover:text-amber-600"
