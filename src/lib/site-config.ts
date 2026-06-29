@@ -30,7 +30,7 @@ export const siteConfig = {
   geo: { lat: 26.8467, lng: 87.3145 },
 
   rating: { value: 4.5, count: 86 },
-  priceRange: "$$",
+  priceRange: "NPR 1,500-2,500",
 
   // URLs — production base read from env so OG/canonical work on Vercel + custom domain
   url:

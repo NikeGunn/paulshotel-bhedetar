@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Images, Inbox, LogOut, ExternalLink } from "lucide-react";
+import { LayoutDashboard, FileText, Images, Inbox, Settings, UserCog, LogOut, ExternalLink } from "lucide-react";
 import { signOut } from "@/app/actions/auth";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +11,8 @@ const nav = [
   { href: "/admin/blog", label: "Blog posts", icon: FileText },
   { href: "/admin/gallery", label: "Gallery", icon: Images },
   { href: "/admin/leads", label: "Enquiries", icon: Inbox },
+  { href: "/admin/settings", label: "Settings", icon: Settings },
+  { href: "/admin/account", label: "Account", icon: UserCog },
 ];
 
 export function AdminShell({

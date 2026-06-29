@@ -16,7 +16,7 @@
 | Phone / WhatsApp | **970-1406587** |
 | Email | **Sanbunpaudal299@gmail.com** |
 | Rating | **4.5 / 5** · **86 Google reviews** |
-| Price tier | `$$` |
+| Price tier | NPR 1,500-2,500 (Nepali site — no `$`/USD anywhere user-facing) |
 | Facebook | facebook.com/paulshotelbhedetar |
 | Future domain | paulshotel.com.np (parked now → switch later, no code change) |
 | Distance | ~1h50m from Dharan; hilltop sunrise/sunset; Sky Walk viewpoint nearby |
@@ -97,7 +97,7 @@ Global UI: sticky nav, footer (NAP/social/hours), floating WhatsApp+Call buttons
 ## 7. SEO plan
 
 - Per-page `generateMetadata` (title/desc/canonical/OG/Twitter) + dynamic OG image.
-- JSON-LD: `Hotel`+`LocalBusiness` (NAP, geo, priceRange `$$`, rating 4.5/86, sameAs FB) on home/contact; `Article` on posts; `BreadcrumbList` site-wide. Helpers in `src/lib/jsonld.ts`.
+- JSON-LD: `Hotel`+`LocalBusiness` (NAP, geo, priceRange `NPR 1,500-2,500`, rating 4.5/86, sameAs FB) on home/contact; `Article` on posts; `BreadcrumbList` site-wide. Helpers in `src/lib/jsonld.ts`.
 - Targets: "hotel in Bhedetar", "Paul's Hotel Bhedetar", "Bhedetar resort", "where to stay Bhedetar", "Charles Point hotel", "Sky Walk Bhedetar".
 - sitemap (incl. dynamic blog slugs), robots, semantic headings, WebP, priority hero LCP, mobile-first.
 

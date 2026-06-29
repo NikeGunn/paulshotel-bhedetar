@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { MapPin, Phone, Mail, ArrowUpRight, Star } from "lucide-react";
-import { navItems, links, siteConfig } from "@/lib/site-config";
-
-const year = new Date().getFullYear();
+import { navItems } from "@/lib/site-config";
+import { getSettings } from "@/lib/settings";
 
 function FacebookIcon({ className }: { className?: string }) {
   return (
@@ -22,7 +21,15 @@ function InstagramIcon({ className }: { className?: string }) {
   );
 }
 
-export function Footer() {
+export async function Footer() {
+  const s = await getSettings();
+  const year = new Date().getFullYear();
+  const whatsappHref = `https://wa.me/${s.whatsapp}?text=${encodeURIComponent(
+    "Hi Paul's Hotel, I'd like to enquire about a room.",
+  )}`;
+  const callHref = `tel:${s.phoneE164}`;
+  const mailtoHref = `mailto:${s.email}`;
+
   return (
     <footer className="relative overflow-hidden bg-brand-950 text-cream/80">
       {/* string-light top accent */}
@@ -43,7 +50,7 @@ export function Footer() {
           </div>
           <div className="flex flex-wrap gap-3">
             <a
-              href={links.whatsapp}
+              href={whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 font-semibold text-brand-950 transition-transform hover:-translate-y-0.5"
@@ -72,12 +79,12 @@ export function Footer() {
             </span>
           </div>
           <p className="mt-4 text-sm leading-relaxed text-cream/65">
-            {siteConfig.tagline}.
+            {s.tagline}.
           </p>
           <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-cream/5 px-3 py-1.5 text-sm">
             <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-            <span className="font-semibold text-cream">{siteConfig.rating.value}</span>
-            <span className="text-cream/55">· {siteConfig.rating.count} Google reviews</span>
+            <span className="font-semibold text-cream">{s.rating.value}</span>
+            <span className="text-cream/55">· {s.rating.count} Google reviews</span>
           </div>
         </div>
 
@@ -106,18 +113,18 @@ export function Footer() {
           <ul className="mt-4 space-y-3.5 text-sm">
             <li className="flex gap-3">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
-              <span className="text-cream/70">{siteConfig.address.full}</span>
+              <span className="text-cream/70">{s.address.full}</span>
             </li>
             <li>
-              <a href={links.call} className="flex gap-3 text-cream/70 hover:text-amber-200">
+              <a href={callHref} className="flex gap-3 text-cream/70 hover:text-amber-200">
                 <Phone className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
-                {siteConfig.phone}
+                {s.phone}
               </a>
             </li>
             <li>
-              <a href={links.mailto} className="flex gap-3 break-all text-cream/70 hover:text-amber-200">
+              <a href={mailtoHref} className="flex gap-3 break-all text-cream/70 hover:text-amber-200">
                 <Mail className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
-                {siteConfig.email}
+                {s.email}
               </a>
             </li>
           </ul>
@@ -129,7 +136,7 @@ export function Footer() {
           </h3>
           <div className="mt-4 flex gap-3">
             <a
-              href={siteConfig.social.facebook}
+              href={s.social.facebook}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Facebook"
@@ -138,7 +145,7 @@ export function Footer() {
               <FacebookIcon className="h-5 w-5" />
             </a>
             <a
-              href={siteConfig.social.instagram}
+              href={s.social.instagram}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
@@ -148,7 +155,7 @@ export function Footer() {
             </a>
           </div>
           <a
-            href={links.directions}
+            href={s.directionsUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-5 inline-flex items-center gap-1.5 text-sm text-cream/70 hover:text-amber-200"
