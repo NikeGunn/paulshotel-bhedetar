@@ -59,7 +59,7 @@ export default function AdminLoginPage() {
             required
             autoComplete="email"
             className="mt-1.5 w-full rounded-xl border border-brand-800/15 px-4 py-3 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30"
-            placeholder="paulshotelbhedetar@gmail.com"
+            placeholder="Sanbunpaudal299@gmail.com"
           />
 
           <label className="mt-4 block text-sm font-medium text-brand-800">
