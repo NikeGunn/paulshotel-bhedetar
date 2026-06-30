@@ -10,6 +10,8 @@ type FloatingConfig = {
   showCall: boolean;
   whatsappHref: string;
   callHref: string;
+  /** Display phone for the navbar CTA (DB-backed). */
+  phone: string;
 };
 
 /**
@@ -35,7 +37,11 @@ export function SiteChrome({
   return (
     <>
       <Preloader />
-      <Navbar />
+      <Navbar
+        phone={floating.phone}
+        callHref={floating.callHref}
+        whatsappHref={floating.whatsappHref}
+      />
       <main className="flex-1">{children}</main>
       {footer}
       <FloatingContact

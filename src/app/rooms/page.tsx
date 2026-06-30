@@ -5,7 +5,7 @@ import { Check, Users, ArrowRight } from "lucide-react";
 import { PageHero } from "@/components/ui/page-hero";
 import { Reveal } from "@/components/ui/reveal";
 import { rooms } from "@/lib/content";
-import { links } from "@/lib/site-config";
+import { getSettings, contactLinks } from "@/lib/settings";
 
 export const metadata: Metadata = {
   title: "Rooms in Bhedetar",
@@ -14,7 +14,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/rooms" },
 };
 
-export default function RoomsPage() {
+export default async function RoomsPage() {
+  const { whatsappHref } = contactLinks(await getSettings());
   return (
     <>
       <PageHero
@@ -75,7 +76,7 @@ export default function RoomsPage() {
                   </ul>
                   <div className="mt-8 flex flex-wrap gap-3">
                     <a
-                      href={links.whatsapp}
+                      href={whatsappHref}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-6 py-3 font-semibold text-brand-950 transition-transform hover:-translate-y-0.5"

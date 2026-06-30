@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Outfit } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/lib/site-config";
-import { getSettings } from "@/lib/settings";
+import { getSettings, contactLinks } from "@/lib/settings";
 import { hotelJsonLd, jsonLdScript } from "@/lib/jsonld";
 import { SiteChrome } from "@/components/layout/site-chrome";
 import { Footer } from "@/components/layout/footer";
@@ -69,10 +69,7 @@ export default async function RootLayout({
   const floating = {
     showWhatsapp: settings.showWhatsappButton,
     showCall: settings.showCallButton,
-    whatsappHref: `https://wa.me/${settings.whatsapp}?text=${encodeURIComponent(
-      "Hi Paul's Hotel, I'd like to enquire about a room.",
-    )}`,
-    callHref: `tel:${settings.phoneE164}`,
+    ...contactLinks(settings),
   };
 
   return (

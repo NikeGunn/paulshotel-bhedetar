@@ -126,8 +126,10 @@ export async function saveSettings(
 
   if (error) return { error: error.message };
 
-  // Revalidate the pages that embed NAP/JSON-LD. This re-runs their cached
-  // settings fetch on the next request; the 60s fetch TTL is the natural cap.
+  // Revalidate every route that embeds NAP/JSON-LD/contact links. This drops
+  // both the full-route (static) cache AND the data-cache entry for the tagged
+  // settings fetch under each path, so the next request rebuilds with the new
+  // DB values instead of waiting out the 60s fetch TTL.
   for (const p of SETTINGS_DEPENDENT_PATHS) revalidatePath(p);
   revalidatePath("/admin/settings");
 

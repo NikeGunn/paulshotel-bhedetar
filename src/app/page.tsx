@@ -6,11 +6,13 @@ import { ExperiencesStrip } from "@/components/home/experiences-strip";
 import { FanShowcase } from "@/components/home/fan-showcase";
 import { Testimonials } from "@/components/home/testimonials";
 import { LocationCTA } from "@/components/home/location-cta";
+import { getSettings, contactLinks } from "@/lib/settings";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const s = await getSettings();
   return (
     <>
-      <Hero />
+      <Hero whatsappHref={contactLinks(s).whatsappHref} rating={s.rating} />
       <Highlights />
       <RoomsPreview />
       <FoodMarquee />

@@ -1,7 +1,7 @@
 import { Star, Quote } from "lucide-react";
 import { testimonials } from "@/lib/content";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { siteConfig } from "@/lib/site-config";
+import { getSettings } from "@/lib/settings";
 
 type Review = (typeof testimonials)[number];
 
@@ -71,7 +71,8 @@ function MarqueeRow({
   );
 }
 
-export function Testimonials() {
+export async function Testimonials() {
+  const { rating } = await getSettings();
   const half = Math.ceil(testimonials.length / 2);
   const rowA = [...testimonials];
   const rowB = [...testimonials.slice(half), ...testimonials.slice(0, half)];
@@ -81,7 +82,7 @@ export function Testimonials() {
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <SectionHeading
           align="center"
-          kicker={`Rated ${siteConfig.rating.value} by ${siteConfig.rating.count} guests`}
+          kicker={`Rated ${rating.value} by ${rating.count} guests`}
           title="What people say"
           intro="Real words from travellers after a stay up in the clouds with us."
         />
