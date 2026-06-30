@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { PageHero } from "@/components/ui/page-hero";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/reveal";
-import { experiences } from "@/lib/content";
+import { getExperiences } from "@/lib/content-data";
 import { Sunrise, Footprints, Mountain, Sparkles } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -19,7 +19,8 @@ const quick = [
   { icon: Sparkles, label: "Night sky", note: "Stars far from city glow" },
 ];
 
-export default function ExperiencesPage() {
+export default async function ExperiencesPage() {
+  const experiences = await getExperiences();
   return (
     <>
       <PageHero

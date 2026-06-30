@@ -75,7 +75,7 @@ export async function Footer() {
               P
             </span>
             <span className="font-display text-xl font-semibold text-cream">
-              Paul&apos;s Hotel &amp; Lodge
+              {s.name}
             </span>
           </div>
           <p className="mt-4 text-sm leading-relaxed text-cream/65">
@@ -167,7 +167,7 @@ export async function Footer() {
 
       <div className="relative border-t border-cream/10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-5 py-6 text-xs text-cream/50 sm:flex-row lg:px-8">
-          <p>© {year} Paul&apos;s Hotel &amp; Lodge, Bhedetar. All rights reserved.</p>
+          <p>© {year} {s.name}, Bhedetar. All rights reserved.</p>
           <p>Charles Point · Dharan-Dhankuta Highway · Nepal</p>
         </div>
       </div>

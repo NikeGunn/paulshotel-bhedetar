@@ -1,12 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { dishes } from "@/lib/content";
+import { getDishes } from "@/lib/content-data";
 import { SectionHeading } from "@/components/ui/section-heading";
 
-const row = [...dishes, ...dishes]; // duplicate for seamless loop
-
-export function FoodMarquee() {
+export async function FoodMarquee() {
+  const dishes = await getDishes();
+  const row = [...dishes, ...dishes]; // duplicate for seamless loop
   return (
     <section className="overflow-hidden bg-brand-950 py-20 text-cream sm:py-28">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">

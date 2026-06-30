@@ -22,32 +22,39 @@ const sans = Outfit({
   weight: ["300", "400", "500", "600", "700"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteConfig.url),
-  title: {
-    default: `${siteConfig.name} · Hotel in Bhedetar, Dhankuta`,
-    template: `%s · ${siteConfig.shortName}`,
-  },
-  description: siteConfig.description,
-  keywords: [...siteConfig.keywords],
-  alternates: { canonical: "/" },
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: siteConfig.url,
-    siteName: siteConfig.name,
-    title: `${siteConfig.name} · Hotel in Bhedetar`,
-    description: siteConfig.description,
-    images: [{ url: "/images/hotel/exterior-blue-dusk.webp", width: 1200, height: 630, alt: siteConfig.name }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${siteConfig.name} · Hotel in Bhedetar`,
-    description: siteConfig.description,
-    images: ["/images/hotel/exterior-blue-dusk.webp"],
-  },
-  robots: { index: true, follow: true },
-};
+// Title/description/keywords come from owner-editable settings (DB) with a safe
+// fallback to siteConfig. `metadataBase`/canonical stay env-derived so OG/canonical
+// are always correct on the Vercel URL and the custom domain (CLAUDE rule #6).
+export async function generateMetadata(): Promise<Metadata> {
+  const s = await getSettings();
+  const shortName = siteConfig.shortName;
+  return {
+    metadataBase: new URL(siteConfig.url),
+    title: {
+      default: `${s.name} · Hotel in Bhedetar, Dhankuta`,
+      template: `%s · ${shortName}`,
+    },
+    description: s.description,
+    keywords: [...s.keywords],
+    alternates: { canonical: "/" },
+    openGraph: {
+      type: "website",
+      locale: "en_US",
+      url: siteConfig.url,
+      siteName: s.name,
+      title: `${s.name} · Hotel in Bhedetar`,
+      description: s.description,
+      images: [{ url: "/images/hotel/exterior-blue-dusk.webp", width: 1200, height: 630, alt: s.name }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${s.name} · Hotel in Bhedetar`,
+      description: s.description,
+      images: ["/images/hotel/exterior-blue-dusk.webp"],
+    },
+    robots: { index: true, follow: true },
+  };
+}
 
 // Explicit viewport so phones/tablets (incl. iOS Safari) scale correctly and
 // the address bar/status bar pick up the brand colour. `viewport-fit=cover`
@@ -69,6 +76,7 @@ export default async function RootLayout({
   const floating = {
     showWhatsapp: settings.showWhatsappButton,
     showCall: settings.showCallButton,
+    name: settings.name,
     ...contactLinks(settings),
   };
 
