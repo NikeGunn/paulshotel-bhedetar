@@ -7,7 +7,7 @@ import { LoaderGlobe } from "./loader-globe";
 
 const WORDS = ["clouds", "comfort", "sunrise", "Bhedetar"];
 
-export function Preloader() {
+export function Preloader({ name = "Paul's Hotel & Lodge" }: { name?: string }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
   const [show, setShow] = useState(true);
@@ -133,7 +133,7 @@ export function Preloader() {
                 transition={{ delay: 0.2, duration: 0.6 }}
                 className="mt-8 font-display text-2xl font-semibold tracking-tight text-cream sm:text-3xl"
               >
-                Paul&apos;s Hotel &amp; Lodge
+                {name}
               </motion.h1>
 
             {/* rotating tagline word */}

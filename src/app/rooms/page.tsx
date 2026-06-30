@@ -4,8 +4,8 @@ import Link from "next/link";
 import { Check, Users, ArrowRight } from "lucide-react";
 import { PageHero } from "@/components/ui/page-hero";
 import { Reveal } from "@/components/ui/reveal";
-import { rooms } from "@/lib/content";
 import { getSettings, contactLinks } from "@/lib/settings";
+import { getRooms } from "@/lib/content-data";
 
 export const metadata: Metadata = {
   title: "Rooms in Bhedetar",
@@ -15,7 +15,8 @@ export const metadata: Metadata = {
 };
 
 export default async function RoomsPage() {
-  const { whatsappHref } = contactLinks(await getSettings());
+  const [settings, rooms] = await Promise.all([getSettings(), getRooms()]);
+  const { whatsappHref } = contactLinks(settings);
   return (
     <>
       <PageHero

@@ -1,9 +1,9 @@
 import { Star, Quote } from "lucide-react";
-import { testimonials } from "@/lib/content";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { getSettings } from "@/lib/settings";
+import { getTestimonials, type Testimonial } from "@/lib/content-data";
 
-type Review = (typeof testimonials)[number];
+type Review = Testimonial;
 
 function Card({ t }: { t: Review }) {
   return (
@@ -72,7 +72,7 @@ function MarqueeRow({
 }
 
 export async function Testimonials() {
-  const { rating } = await getSettings();
+  const [{ rating }, testimonials] = await Promise.all([getSettings(), getTestimonials()]);
   const half = Math.ceil(testimonials.length / 2);
   const rowA = [...testimonials];
   const rowB = [...testimonials.slice(half), ...testimonials.slice(0, half)];

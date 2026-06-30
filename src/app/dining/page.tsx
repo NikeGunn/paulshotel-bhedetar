@@ -3,8 +3,8 @@ import Image from "next/image";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { PageHero } from "@/components/ui/page-hero";
-import { dishes } from "@/lib/content";
 import { getSettings, contactLinks } from "@/lib/settings";
+import { getDishes } from "@/lib/content-data";
 
 export const metadata: Metadata = {
   title: "Dining, Bar & Lounge",
@@ -14,7 +14,8 @@ export const metadata: Metadata = {
 };
 
 export default async function DiningPage() {
-  const { whatsappHref } = contactLinks(await getSettings());
+  const [settings, dishes] = await Promise.all([getSettings(), getDishes()]);
+  const { whatsappHref } = contactLinks(settings);
   return (
     <>
       <PageHero

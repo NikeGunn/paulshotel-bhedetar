@@ -12,6 +12,8 @@ type FloatingConfig = {
   callHref: string;
   /** Display phone for the navbar CTA (DB-backed). */
   phone: string;
+  /** Hotel name for the navbar brand (DB-backed). */
+  name: string;
 };
 
 /**
@@ -36,8 +38,9 @@ export function SiteChrome({
 
   return (
     <>
-      <Preloader />
+      <Preloader name={floating.name} />
       <Navbar
+        name={floating.name}
         phone={floating.phone}
         callHref={floating.callHref}
         whatsappHref={floating.whatsappHref}

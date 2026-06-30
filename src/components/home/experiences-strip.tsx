@@ -1,9 +1,10 @@
 import Image from "next/image";
-import { experiences } from "@/lib/content";
+import { getExperiences } from "@/lib/content-data";
 import { Reveal } from "@/components/ui/reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 
-export function ExperiencesStrip() {
+export async function ExperiencesStrip() {
+  const experiences = await getExperiences();
   return (
     <section className="bg-cream py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">

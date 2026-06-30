@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Users, ArrowRight } from "lucide-react";
-import { rooms } from "@/lib/content";
+import { getRooms } from "@/lib/content-data";
 import { Stagger, StaggerItem } from "@/components/ui/reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 
-export function RoomsPreview() {
+export async function RoomsPreview() {
+  const rooms = await getRooms();
   return (
     <section className="bg-sand py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
@@ -24,7 +25,7 @@ export function RoomsPreview() {
         </div>
 
         <Stagger className="mt-12 grid gap-6 md:grid-cols-3">
-          {rooms.map((room) => (
+          {rooms.slice(0, 3).map((room) => (
             <StaggerItem key={room.slug}>
               <article className="group h-full overflow-hidden rounded-3xl bg-white shadow-sm transition-all hover:-translate-y-2 hover:shadow-2xl">
                 <div className="relative aspect-[4/3] overflow-hidden">

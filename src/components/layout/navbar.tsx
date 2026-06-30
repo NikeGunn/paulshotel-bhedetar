@@ -15,10 +15,12 @@ import { navItems } from "@/lib/site-config";
  * value is ever missing.
  */
 export function Navbar({
+  name,
   phone,
   callHref,
   whatsappHref,
 }: {
+  name: string;
   phone: string;
   callHref: string;
   whatsappHref: string;
@@ -55,7 +57,7 @@ export function Navbar({
                 : "bg-amber-400 text-brand-950",
             )}
           >
-            P
+            {name.charAt(0) || "P"}
           </span>
           <span className="flex flex-col leading-none">
             <span
@@ -64,7 +66,7 @@ export function Navbar({
                 scrolled ? "text-brand-900" : "text-cream",
               )}
             >
-              Paul&apos;s Hotel
+              {name}
             </span>
             <span
               className={cn(

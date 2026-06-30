@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Images, Inbox, Settings, UserCog, LogOut, ExternalLink } from "lucide-react";
+import { LayoutDashboard, FileText, Images, Inbox, Settings, UserCog, LogOut, ExternalLink, LayoutGrid } from "lucide-react";
 import { signOut } from "@/app/actions/auth";
 import { cn } from "@/lib/utils";
 
 const nav = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/admin/content", label: "Content", icon: LayoutGrid },
   { href: "/admin/blog", label: "Blog posts", icon: FileText },
   { href: "/admin/gallery", label: "Gallery", icon: Images },
   { href: "/admin/leads", label: "Enquiries", icon: Inbox },
