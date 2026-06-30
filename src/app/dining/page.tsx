@@ -5,6 +5,7 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { PageHero } from "@/components/ui/page-hero";
 import { getSettings, contactLinks } from "@/lib/settings";
 import { getDishes } from "@/lib/content-data";
+import { getPageText } from "@/lib/page-text-data";
 
 export const metadata: Metadata = {
   title: "Dining, Bar & Lounge",
@@ -14,15 +15,15 @@ export const metadata: Metadata = {
 };
 
 export default async function DiningPage() {
-  const [settings, dishes] = await Promise.all([getSettings(), getDishes()]);
+  const [settings, dishes, pt] = await Promise.all([getSettings(), getDishes(), getPageText()]);
   const { whatsappHref } = contactLinks(settings);
   return (
     <>
       <PageHero
         crumb="Dining"
-        kicker="Eat, drink, unwind"
-        title="Food worth the drive up"
-        intro="The kitchen runs all day. Warm up with thukpa, dig into sekuwa fresh off the grill, then settle into the lounge as the lights come on."
+        kicker={pt("dining.hero.kicker")}
+        title={pt("dining.hero.title")}
+        intro={pt("dining.hero.intro")}
         image="/images/food/chicken-sekuwa.webp"
         alt="Chicken sekuwa platter at Paul's Hotel"
       />
@@ -44,9 +45,9 @@ export default async function DiningPage() {
             </Reveal>
             <Reveal direction="right" delay={0.1}>
               <SectionHeading
-                kicker="The bar and lounge"
-                title="A drink with a view"
-                intro="When the temperature drops, the lounge is the place to be. Cold beers, a relaxed vibe and the city lights twinkling far below. The perfect end to a day in the hills."
+                kicker={pt("dining.bar.kicker")}
+                title={pt("dining.bar.title")}
+                intro={pt("dining.bar.intro")}
               />
               <a
                 href={whatsappHref}
@@ -66,9 +67,9 @@ export default async function DiningPage() {
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <SectionHeading
             align="center"
-            kicker="From our kitchen"
-            title="Taste of the hills"
-            intro="A few favourites from the menu. Tell us what you are craving and we will sort you out."
+            kicker={pt("dining.menu.kicker")}
+            title={pt("dining.menu.title")}
+            intro={pt("dining.menu.intro")}
           />
           <Stagger className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-3">
             {dishes.map((dish) => (

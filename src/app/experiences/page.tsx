@@ -3,6 +3,7 @@ import Image from "next/image";
 import { PageHero } from "@/components/ui/page-hero";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/reveal";
 import { getExperiences } from "@/lib/content-data";
+import { getPageText } from "@/lib/page-text-data";
 import { Sunrise, Footprints, Mountain, Sparkles } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -20,14 +21,14 @@ const quick = [
 ];
 
 export default async function ExperiencesPage() {
-  const experiences = await getExperiences();
+  const [experiences, pt] = await Promise.all([getExperiences(), getPageText()]);
   return (
     <>
       <PageHero
         crumb="Experiences"
-        kicker="Things to do"
-        title="More than a place to sleep"
-        intro="Bhedetar is a hill station made for slow mornings, big views and cool mountain air. Here is what waits just outside the door."
+        kicker={pt("experiences.hero.kicker")}
+        title={pt("experiences.hero.title")}
+        intro={pt("experiences.hero.intro")}
         image="/images/hotel/exterior-foggy-day.webp"
         alt="Paul's Hotel wrapped in hill fog at Charles Point"
       />

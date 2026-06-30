@@ -151,3 +151,53 @@ npx tsc --noEmit # typecheck
 - Keep server-only modules (`admin.ts`, resend) out of any `'use client'` import graph.
 - Original photos preserved in `Images/` (backup) — working copies live in `public/images/`.
 - See `PROGRESS.md` for live status / next action.
+- **NEVER `rm ./*.mjs` in project root** — it matches `eslint.config.mjs`/`postcss.config.mjs` (config files) not just temp scripts. Delete temp scripts by exact name. (Hit this 2026-06-30; restored via `git checkout`.)
+
+---
+
+## 11. Dynamic content from admin — status & SHIPPED (2026-06-30)
+
+Goal (owner ask): the admin panel must let the owner CRUD **all** site content; nothing
+visible should be a hardcoded constant. Pattern for every type = DB table (public-SELECT
+RLS, service-role writes) + a server data layer that reads via anon REST, ISR-caches 60s,
+and **falls back to the compiled default** (never throws) + admin CRUD + `revalidatePath`
+on mutate. Mirrors `src/lib/settings.ts`.
+
+### DONE (live on hotelpauls.com, CI+Deploy green)
+- **Settings reflect everywhere** (PR #27/#28): fixed the bug where navbar/hero/location-cta/
+  dining/rooms/testimonials rendered compiled `links`/`siteConfig` instead of `getSettings()`.
+  Added `contactLinks(settings)` in `settings.ts` (single source for tel:/wa.me). Client
+  components (navbar, hero) take props threaded from server layout via `SiteChrome`'s
+  `floating` config. **Rule: any public component showing NAP/name/rating MUST read
+  `getSettings()`/data layer — never import `links`/`siteConfig` directly.**
+- **Hotel name** now DB-driven in footer, navbar brand+avatar initial, preloader, and page
+  `<title>`/OG (layout uses `generateMetadata`). `metadataBase`/canonical stay env-derived.
+- **rooms / dishes / experiences / testimonials** (PR #29): migration `0003_content_tables.sql`
+  (applied to prod), `src/lib/content-data.ts` (`getRooms/getDishes/getExperiences/
+  getTestimonials` + `*Fresh`), `src/app/actions/content.ts` (zod CRUD), `/admin/content`
+  tabbed UI (`src/components/admin/content-manager.tsx`), "Content" nav entry. Public pages
+  (home previews + /rooms /dining /experiences) read the data layer; `content.ts` kept as
+  fallback only.
+
+### PENDING — Page-text editing (in progress, NOT yet built)
+Owner wants the marketing copy editable too (hero kicker/title/intro per page). Plan:
+1. `src/lib/page-text.ts` — typed registry of editable keys with compiled DEFAULTS.
+   Cover the 6 page heroes (kicker/title/intro): rooms, dining, experiences, gallery, blog,
+   contact (literals already inventoried — they're `<PageHero>`/`<SectionHeading>` props).
+2. Migration `0004_page_text.sql` — `page_text(key text pk, value text)`, public SELECT RLS,
+   service-role writes. Data layer `getPageText()` → merged map (DB over defaults),
+   ISR-cached, never throws.
+3. Server action (bulk upsert) + admin "Page text" section grouped by page; replace the
+   hardcoded `kicker=/title=/intro=` literals with `pt("rooms.hero.title")` lookups.
+4. Verify tsc/lint/build, apply migration to prod, PR + green CI, live-verify.
+
+### How to apply migrations to prod (this PC has IPv6, direct host works)
+`PGPASSWORD='<db pw from .env.local comment>' "/c/Program Files/PostgreSQL/17/bin/psql" \
+  "host=db.horbzccfedxhynsheghi.supabase.co port=5432 dbname=postgres user=postgres sslmode=require" \
+  -v ON_ERROR_STOP=1 -f supabase/migrations/000X_*.sql`
+(GitHub runners are IPv4-only → can't reach that host; that's fine, migrations are manual.)
+
+### Standards in force (saved to ~/.claude/CLAUDE.md + /standards command)
+AHA (avoid premature abstraction; duplicate until 3rd real repeat) + Vertical Slice (feature
+end-to-end through every layer) + DRY (single-source knowledge only, not coincidental
+look-alikes). Verify build/typecheck/lint before "done".
