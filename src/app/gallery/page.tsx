@@ -3,6 +3,7 @@ import { PageHero } from "@/components/ui/page-hero";
 import { GalleryGrid } from "@/components/gallery/gallery-grid";
 import { galleryImages } from "@/lib/content";
 import { createClient } from "@/lib/supabase/server";
+import { getPageText } from "@/lib/page-text-data";
 
 export const metadata: Metadata = {
   title: "Photo Gallery",
@@ -28,14 +29,15 @@ export default async function GalleryPage() {
     category: g.category,
   }));
   const images = [...dbImages, ...galleryImages];
+  const pt = await getPageText();
 
   return (
     <>
       <PageHero
         crumb="Gallery"
-        kicker="In pictures"
-        title="A look around"
-        intro="Rooms, food, the terrace and the views that keep guests coming back. Tap any photo to take a closer look."
+        kicker={pt("gallery.hero.kicker")}
+        title={pt("gallery.hero.title")}
+        intro={pt("gallery.hero.intro")}
         image="/images/hotel/terrace-string-lights.webp"
         alt="Terrace at Paul's Hotel lit with string lights"
       />

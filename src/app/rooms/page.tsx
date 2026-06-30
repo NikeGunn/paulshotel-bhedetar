@@ -6,6 +6,7 @@ import { PageHero } from "@/components/ui/page-hero";
 import { Reveal } from "@/components/ui/reveal";
 import { getSettings, contactLinks } from "@/lib/settings";
 import { getRooms } from "@/lib/content-data";
+import { getPageText } from "@/lib/page-text-data";
 
 export const metadata: Metadata = {
   title: "Rooms in Bhedetar",
@@ -15,15 +16,15 @@ export const metadata: Metadata = {
 };
 
 export default async function RoomsPage() {
-  const [settings, rooms] = await Promise.all([getSettings(), getRooms()]);
+  const [settings, rooms, pt] = await Promise.all([getSettings(), getRooms(), getPageText()]);
   const { whatsappHref } = contactLinks(settings);
   return (
     <>
       <PageHero
         crumb="Rooms"
-        kicker="Rest easy"
-        title="Rooms with a view"
-        intro="Open the curtains to cool mountain air and a valley that stretches for miles. Simple comfort, spotless rooms and a warm welcome."
+        kicker={pt("rooms.hero.kicker")}
+        title={pt("rooms.hero.title")}
+        intro={pt("rooms.hero.intro")}
         image="/images/rooms/twin-room.webp"
         alt="Twin room at Paul's Hotel Bhedetar"
       />

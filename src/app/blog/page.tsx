@@ -6,6 +6,7 @@ import { PageHero } from "@/components/ui/page-hero";
 import { Stagger, StaggerItem } from "@/components/ui/reveal";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";
+import { getPageText } from "@/lib/page-text-data";
 
 export const metadata: Metadata = {
   title: "Blog & Travel Notes",
@@ -25,13 +26,15 @@ export default async function BlogPage() {
     .eq("status", "published")
     .order("published_at", { ascending: false });
 
+  const pt = await getPageText();
+
   return (
     <>
       <PageHero
         crumb="Blog"
-        kicker="Travel notes"
-        title="Stories from the hill"
-        intro="Tips, guides and little stories from up here in Bhedetar."
+        kicker={pt("blog.hero.kicker")}
+        title={pt("blog.hero.title")}
+        intro={pt("blog.hero.intro")}
         image="/images/views/night-sky-stars.webp"
         alt="Starry night sky over Bhedetar"
       />

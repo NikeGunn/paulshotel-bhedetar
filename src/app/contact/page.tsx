@@ -5,6 +5,7 @@ import { Reveal } from "@/components/ui/reveal";
 import { InquiryForm } from "@/components/contact/inquiry-form";
 import { jsonLdScript, breadcrumbJsonLd } from "@/lib/jsonld";
 import { getSettings } from "@/lib/settings";
+import { getPageText } from "@/lib/page-text-data";
 
 export const metadata: Metadata = {
   title: "Contact & Book",
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactPage() {
-  const s = await getSettings();
+  const [s, pt] = await Promise.all([getSettings(), getPageText()]);
   const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(
     s.mapEmbedQuery,
   )}&output=embed`;
@@ -37,9 +38,9 @@ export default async function ContactPage() {
       />
       <PageHero
         crumb="Contact"
-        kicker="Plan your stay"
-        title="Let's get you booked in"
-        intro="Tell us your dates and we will reply with availability and the best rate. Prefer to talk? Call or WhatsApp us any time."
+        kicker={pt("contact.hero.kicker")}
+        title={pt("contact.hero.title")}
+        intro={pt("contact.hero.intro")}
         image="/images/views/night-valley-citylights.webp"
         alt="Night view of the valley from Paul's Hotel Bhedetar"
       />
