@@ -4,7 +4,7 @@ import { Reveal, Stagger, StaggerItem } from "@/components/ui/reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { PageHero } from "@/components/ui/page-hero";
 import { dishes } from "@/lib/content";
-import { links } from "@/lib/site-config";
+import { getSettings, contactLinks } from "@/lib/settings";
 
 export const metadata: Metadata = {
   title: "Dining, Bar & Lounge",
@@ -13,7 +13,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/dining" },
 };
 
-export default function DiningPage() {
+export default async function DiningPage() {
+  const { whatsappHref } = contactLinks(await getSettings());
   return (
     <>
       <PageHero
@@ -47,7 +48,7 @@ export default function DiningPage() {
                 intro="When the temperature drops, the lounge is the place to be. Cold beers, a relaxed vibe and the city lights twinkling far below. The perfect end to a day in the hills."
               />
               <a
-                href={links.whatsapp}
+                href={whatsappHref}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-8 inline-flex items-center gap-2 rounded-full bg-brand-800 px-7 py-3.5 font-semibold text-cream transition-transform hover:-translate-y-0.5"

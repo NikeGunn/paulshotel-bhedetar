@@ -2,11 +2,13 @@ import { MapPin, Phone, Clock, Navigation } from "lucide-react";
 import { Reveal } from "@/components/ui/reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { HotelGlobeLazy } from "./hotel-globe-lazy";
-import { links, siteConfig } from "@/lib/site-config";
+import { getSettings, contactLinks } from "@/lib/settings";
 
-export function LocationCTA() {
+export async function LocationCTA() {
+  const s = await getSettings();
+  const { callHref } = contactLinks(s);
   const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(
-    siteConfig.mapEmbedQuery,
+    s.mapEmbedQuery,
   )}&output=embed`;
 
   return (
@@ -35,7 +37,7 @@ export function LocationCTA() {
                 </span>
                 <div>
                   <p className="font-semibold text-cream">Address</p>
-                  <p className="text-sm text-cream/70">{siteConfig.address.full}</p>
+                  <p className="text-sm text-cream/70">{s.address.full}</p>
                 </div>
               </li>
               <li className="flex gap-4">
@@ -44,8 +46,8 @@ export function LocationCTA() {
                 </span>
                 <div>
                   <p className="font-semibold text-cream">Call or WhatsApp</p>
-                  <a href={links.call} className="text-sm text-cream/70 hover:text-amber-200">
-                    {siteConfig.phone}
+                  <a href={callHref} className="text-sm text-cream/70 hover:text-amber-200">
+                    {s.phone}
                   </a>
                 </div>
               </li>
@@ -55,13 +57,13 @@ export function LocationCTA() {
                 </span>
                 <div>
                   <p className="font-semibold text-cream">Hours</p>
-                  <p className="text-sm text-cream/70">{siteConfig.hours}</p>
+                  <p className="text-sm text-cream/70">{s.hours}</p>
                 </div>
               </li>
             </ul>
 
             <a
-              href={links.directions}
+              href={s.directionsUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-8 inline-flex items-center gap-2 rounded-full bg-amber-400 px-7 py-3.5 font-semibold text-brand-950 transition-transform hover:-translate-y-0.5"

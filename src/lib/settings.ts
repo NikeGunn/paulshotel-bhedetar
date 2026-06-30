@@ -17,6 +17,14 @@ import { siteConfig } from "./site-config";
 
 const SETTINGS_TTL_SECONDS = 60;
 
+/**
+ * Cache tag on the public settings fetch. `saveSettings` revalidates the
+ * dependent routes (which drops the data-cache entries under them), so an owner
+ * edit rebuilds with fresh DB values on the next request rather than waiting out
+ * the {@link SETTINGS_TTL_SECONDS} window; the TTL is the backstop.
+ */
+const SETTINGS_TAG = "site-settings";
+
 /** Shape returned to the app — mirrors `siteConfig` so consumers swap cleanly. */
 export type ResolvedSettings = {
   name: string;
@@ -190,7 +198,7 @@ async function fetchRow(opts: { cache: boolean }): Promise<SettingsRow | null> {
       {
         headers: { apikey: anon, Authorization: `Bearer ${anon}` },
         ...(opts.cache
-          ? { next: { revalidate: SETTINGS_TTL_SECONDS } }
+          ? { next: { revalidate: SETTINGS_TTL_SECONDS, tags: [SETTINGS_TAG] } }
           : { cache: "no-store" }),
       },
     );
@@ -218,4 +226,20 @@ export async function getSettings(): Promise<ResolvedSettings> {
  */
 export async function getSettingsFresh(): Promise<ResolvedSettings> {
   return merge(await fetchRow({ cache: false }));
+}
+
+/**
+ * Single source for the public contact deep-links, derived from resolved
+ * settings. Every navbar/hero/footer/CTA must use THIS — never the compiled
+ * `links` from site-config — so an owner phone/WhatsApp change reflects
+ * everywhere from the DB. One piece of knowledge, one place (DRY).
+ */
+export function contactLinks(s: Pick<ResolvedSettings, "phone" | "phoneE164" | "whatsapp">) {
+  return {
+    phone: s.phone,
+    callHref: `tel:${s.phoneE164}`,
+    whatsappHref: `https://wa.me/${s.whatsapp}?text=${encodeURIComponent(
+      "Hi Paul's Hotel, I'd like to enquire about a room.",
+    )}`,
+  };
 }

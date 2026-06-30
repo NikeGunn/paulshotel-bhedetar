@@ -7,8 +7,6 @@ import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { motion } from "motion/react";
 import { ChevronLeft, ChevronRight, Star, MapPin, ArrowRight } from "lucide-react";
-import { links, siteConfig } from "@/lib/site-config";
-
 const slides = [
   {
     src: "/images/hotel/exterior-blue-dusk.webp",
@@ -40,7 +38,14 @@ const slides = [
   },
 ];
 
-export function Hero() {
+/** Contact + rating come from DB-backed settings, threaded from the home page. */
+export function Hero({
+  whatsappHref,
+  rating,
+}: {
+  whatsappHref: string;
+  rating: { value: number; count: number };
+}) {
   const [emblaRef, embla] = useEmblaCarousel({ loop: true }, [
     Autoplay({ delay: 5000, stopOnInteraction: false }),
   ]);
@@ -102,7 +107,7 @@ export function Hero() {
 
             <div className="pointer-events-auto mt-8 flex flex-wrap items-center gap-4">
               <a
-                href={links.whatsapp}
+                href={whatsappHref}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group inline-flex items-center gap-2 rounded-full bg-amber-400 px-7 py-3.5 font-semibold text-brand-950 shadow-lg transition-all hover:-translate-y-0.5 hover:bg-amber-300"
@@ -118,8 +123,8 @@ export function Hero() {
               </Link>
               <div className="inline-flex items-center gap-2 text-sm text-cream/80">
                 <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                <span className="font-semibold text-cream">{siteConfig.rating.value}</span>
-                <span>· {siteConfig.rating.count} reviews</span>
+                <span className="font-semibold text-cream">{rating.value}</span>
+                <span>· {rating.count} reviews</span>
               </div>
             </div>
           </motion.div>

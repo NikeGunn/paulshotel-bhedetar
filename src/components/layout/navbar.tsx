@@ -7,9 +7,22 @@ import { motion, AnimatePresence } from "motion/react";
 import { Menu, X, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useScrollFlag } from "@/lib/use-scroll-flag";
-import { navItems, links, siteConfig } from "@/lib/site-config";
+import { navItems } from "@/lib/site-config";
 
-export function Navbar() {
+/**
+ * Contact details are threaded from the server layout (DB-backed settings) so
+ * an owner phone/WhatsApp change reflects here. Defaults keep the bar safe if a
+ * value is ever missing.
+ */
+export function Navbar({
+  phone,
+  callHref,
+  whatsappHref,
+}: {
+  phone: string;
+  callHref: string;
+  whatsappHref: string;
+}) {
   const scrolled = useScrollFlag(24);
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -103,7 +116,7 @@ export function Navbar() {
         {/* CTA + mobile toggle */}
         <div className="flex items-center gap-2">
           <a
-            href={links.call}
+            href={callHref}
             className={cn(
               "hidden items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-sm transition-all hover:-translate-y-0.5 sm:inline-flex",
               scrolled
@@ -112,7 +125,7 @@ export function Navbar() {
             )}
           >
             <Phone className="h-4 w-4" />
-            {siteConfig.phone}
+            {phone}
           </a>
           <button
             type="button"
@@ -155,7 +168,7 @@ export function Navbar() {
                 </motion.li>
               ))}
               <a
-                href={links.whatsapp}
+                href={whatsappHref}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-2 rounded-xl bg-brand-700 px-4 py-3 text-center font-semibold text-cream"
